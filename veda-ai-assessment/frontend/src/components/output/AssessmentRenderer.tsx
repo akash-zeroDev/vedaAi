@@ -1,7 +1,5 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+import Latex from 'react-latex-next';
 import 'katex/dist/katex.min.css';
 
 export interface Question {
@@ -65,12 +63,7 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                     <span className="font-bold text-sm sm:text-base">{currentQuestionNumber}.</span>
                     <div className="flex flex-col gap-2 w-full">
                       <div className="text-sm sm:text-base leading-relaxed [&>p]:inline">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkMath]}
-                          rehypePlugins={[rehypeKatex]}
-                        >
-                          {question.questionText || question.text || ''}
-                        </ReactMarkdown>
+                        <Latex>{question.questionText || question.text || ''}</Latex>
                       </div>
                       {question.options && question.options.length > 0 && (
                         <div className="flex flex-col gap-2 mt-3 pl-1 sm:pl-2">
@@ -82,12 +75,7 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                                   {String.fromCharCode(65 + optIdx)}.
                                 </span>
                                 <div className="text-sm sm:text-base text-gray-800 [&>p]:inline">
-                                  <ReactMarkdown
-                                    remarkPlugins={[remarkMath]}
-                                    rehypePlugins={[rehypeKatex]}
-                                  >
-                                    {cleanOpt}
-                                  </ReactMarkdown>
+                                  <Latex>{cleanOpt}</Latex>
                                 </div>
                               </div>
                             );

@@ -33,8 +33,10 @@ USER CRITERIA:
 - Total Questions: ${totalQuestions}
 - Total Marks: ${totalMarks}
 ${instructions ? `- Additional Instructions: ${instructions}` : ''}
-- Formatting: You MUST format all mathematical variables, symbols, greek letters (like alpha, beta), and formulas using standard LaTeX enclosed in single dollar signs for inline math (e.g. $\\alpha$, $TE_{mn}$, $x^2$) and double dollar signs for block equations. Do NOT use plain text for math.
-CRITICAL JSON REQUIREMENT: Because your output is parsed programmatically, you MUST double-escape all LaTeX backslashes in your JSON strings (e.g. use \\\\alpha instead of \\alpha, and \\\\frac instead of \\frac). Failure to do so will break the JSON parser!
+CRITICAL MATH FORMATTING RULE: If the subject involves math, physics, or scientific formulas, you MUST use standard LaTeX syntax. 
+1. You must double-escape all LaTeX backslashes so they survive JSON parsing (e.g., use \\\\frac instead of \\frac, \\\\text instead of \\text).
+2. You MUST wrap all inline equations, variables, and units in single dollar signs (e.g., A force of $5 \\\\text{ N}$ is applied).
+3. You MUST wrap block/display equations in double dollar signs (e.g., $$E = mc^2$$).
 
 You MUST return the output strictly as a valid JSON object matching the EXACT schema layout below.
 You MUST create exactly one section for each Question Type requested. The "title" of each section MUST be the exact name of the Question Type (e.g., "Multiple Choice Questions").
