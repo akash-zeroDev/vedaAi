@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IResult extends Document {
   assignmentId: mongoose.Types.ObjectId;
-  content: any;
+  content: Record<string, unknown>;
 }
 
 const ResultSchema: Schema = new Schema({

@@ -7,7 +7,7 @@ import Result from '../models/Result';
 import { io } from '../server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 export const assessmentWorker = new Worker(
   'assessment-generation',
@@ -48,9 +48,10 @@ export const assessmentWorker = new Worker(
 
       console.log(`[Worker] Finished processing job ${job.id} successfully`);
       return { success: true, resultId: newResult._id };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`[Worker] Error processing job ${job.id}:`, error);
 
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
       if (assignmentId) {
         await Assignment.findByIdAndUpdate(assignmentId, { status: 'failed' });
@@ -59,7 +60,7 @@ export const assessmentWorker = new Worker(
         io.emit('assignment:updated', {
           assignmentId,
           status: 'failed',
-          error: error.message || 'Unknown error occurred',
+          error: errorMessage,
         });
       }
 
