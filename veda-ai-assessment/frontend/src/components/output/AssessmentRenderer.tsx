@@ -48,8 +48,8 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
               {section.sectionTitle}
             </h2>
             {section.instructions && (
-              <p className="text-sm sm:text-base italic text-gray-700">
-                {section.instructions}
+              <p className="text-sm sm:text-base italic text-gray-700 whitespace-pre-wrap">
+                {section.instructions.replace(/\\n/g, '\n')}
               </p>
             )}
           </div>
@@ -62,8 +62,8 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                   <div className="flex flex-row gap-3">
                     <span className="font-bold text-sm sm:text-base">{currentQuestionNumber}.</span>
                     <div className="flex flex-col gap-2 w-full">
-                      <div className="text-sm sm:text-base leading-relaxed [&>p]:inline">
-                        <Latex>{question.questionText || question.text || ''}</Latex>
+                      <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                        <Latex>{(question.questionText || question.text || '').replace(/\\n/g, '\n').replace(/\*?\*?(Sub-questions?|Sub-parts?|Sub questions?):?\*?\*?/gi, '').replace(/\n{3,}/g, '\n\n').trim()}</Latex>
                       </div>
                       {question.options && question.options.length > 0 && (
                         <div className="flex flex-col gap-2 mt-3 pl-1 sm:pl-2">
@@ -74,8 +74,8 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                                 <span className="font-semibold text-gray-600 text-sm sm:text-base w-5 shrink-0">
                                   {String.fromCharCode(65 + optIdx)}.
                                 </span>
-                                <div className="text-sm sm:text-base text-gray-800 [&>p]:inline">
-                                  <Latex>{cleanOpt}</Latex>
+                                <div className="text-sm sm:text-base text-gray-800 whitespace-pre-wrap">
+                                  <Latex>{cleanOpt.replace(/\\n/g, '\n')}</Latex>
                                 </div>
                               </div>
                             );

@@ -6,7 +6,14 @@ import { addAssessmentJob } from '../queues/assessmentQueue';
 
 export const createAssignment = async (req: Request, res: Response): Promise<void> => {
   try {
-    const parseResult = createAssignmentSchema.safeParse(req.body);
+    const body = { ...req.body };
+    if (typeof body.questionTypes === 'string') {
+      try { body.questionTypes = JSON.parse(body.questionTypes); } catch (e) {}
+    }
+    if (typeof body.totalQuestions === 'string') body.totalQuestions = Number(body.totalQuestions);
+    if (typeof body.totalMarks === 'string') body.totalMarks = Number(body.totalMarks);
+
+    const parseResult = createAssignmentSchema.safeParse(body);
 
     if (!parseResult.success) {
       res.status(400).json({
@@ -18,6 +25,22 @@ export const createAssignment = async (req: Request, res: Response): Promise<voi
 
     const payload = parseResult.data;
 
+    let fileData = null;
+    if (req.file) {
+      if (req.file.mimetype === 'image/jpeg' || req.file.mimetype === 'image/png' || req.file.mimetype === 'application/pdf') {
+        fileData = {
+          type: 'inline',
+          mimeType: req.file.mimetype,
+          data: req.file.buffer.toString('base64'),
+        };
+      } else if (req.file.mimetype === 'text/plain' || req.file.mimetype === 'application/rtf' || req.file.mimetype === 'text/rtf') {
+        fileData = {
+          type: 'text',
+          data: req.file.buffer.toString('utf-8'),
+        };
+      }
+    }
+
     const newAssignment = new Assignment({
       ...payload,
       status: 'pending',
@@ -25,7 +48,12 @@ export const createAssignment = async (req: Request, res: Response): Promise<voi
 
     await newAssignment.save();
 
-    const job = await addAssessmentJob(newAssignment._id.toString(), payload);
+    const jobPayload = {
+      ...payload,
+      fileData,
+    };
+
+    const job = await addAssessmentJob(newAssignment._id.toString(), jobPayload);
 
     res.status(201).json({
       message: 'Assignment created successfully',

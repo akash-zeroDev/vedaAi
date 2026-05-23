@@ -20,10 +20,27 @@ export const assessmentWorker = new Worker(
       await Assignment.findByIdAndUpdate(assignmentId, { status: 'processing' });
 
 
-      const prompt = buildStructuredPrompt(job.data.payload);
+      const basePrompt = buildStructuredPrompt(job.data.payload);
+
+      let contents: any[] = [basePrompt];
+      
+      if (job.data.payload.fileData) {
+        if (job.data.payload.fileData.type === 'inline') {
+          const filePart = {
+            inlineData: {
+              data: job.data.payload.fileData.data,
+              mimeType: job.data.payload.fileData.mimeType,
+            }
+          };
+          contents = [filePart, basePrompt];
+        } else if (job.data.payload.fileData.type === 'text') {
+          const combinedPrompt = basePrompt + "\n\nSource Material:\n" + job.data.payload.fileData.data;
+          contents = [combinedPrompt];
+        }
+      }
 
       console.log(`[Worker] Calling Gemini LLM...`);
-      const result = await model.generateContent(prompt);
+      const result = await model.generateContent(contents);
       const responseText = result.response.text();
 
       console.log(`[Worker] Parsing LLM response...`);

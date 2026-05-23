@@ -46,19 +46,21 @@ export const useAssignmentLifecycle = () => {
     try {
       store.setJobStatus('queued');
       
-      const payload = {
-        title: store.title || "Untitled Assignment",
-        dueDate: store.dueDate || "Not specified",
-        instructions: store.instructions || "None",
-        totalQuestions: store.totalQuestions > 0 ? store.totalQuestions : 10,
-        totalMarks: store.totalMarks > 0 ? store.totalMarks : 50,
-        questionTypes: store.questionTypes.length > 0 ? store.questionTypes : [{ type: 'Multiple Choice', count: 10, marks: 50 }],
-      };
+      const formData = new FormData();
+      formData.append('title', store.title || "Untitled Assignment");
+      formData.append('dueDate', store.dueDate || "Not specified");
+      formData.append('instructions', store.instructions || "None");
+      formData.append('totalQuestions', (store.totalQuestions > 0 ? store.totalQuestions : 10).toString());
+      formData.append('totalMarks', (store.totalMarks > 0 ? store.totalMarks : 50).toString());
+      formData.append('questionTypes', JSON.stringify(store.questionTypes.length > 0 ? store.questionTypes : [{ type: 'Multiple Choice', count: 10, marks: 50 }]));
+
+      if (store.file) {
+        formData.append('file', store.file);
+      }
 
       const response = await fetch('http://localhost:8000/api/assignments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       if (response.status === 202 || response.ok) {
