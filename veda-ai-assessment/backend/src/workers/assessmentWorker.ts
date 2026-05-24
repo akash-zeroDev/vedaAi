@@ -1,16 +1,50 @@
 import { Worker, Job } from 'bullmq';
 import redisClient from '../config/redis';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { buildStructuredPrompt, parseAIResponse } from '../utils/promptBuilder';
 import Assignment from '../models/Assignment';
 import Result from '../models/Result';
 import { io } from '../server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
 const model = genAI.getGenerativeModel({ 
   model: 'gemini-3.5-flash',
   generationConfig: {
     responseMimeType: 'application/json',
+    responseSchema: {
+      type: SchemaType.OBJECT,
+      properties: {
+        sections: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              sectionTitle: { type: SchemaType.STRING },
+              instructions: { type: SchemaType.STRING },
+              questions: {
+                type: SchemaType.ARRAY,
+                items: {
+                  type: SchemaType.OBJECT,
+                  properties: {
+                    questionText: { type: SchemaType.STRING },
+                    difficulty: { type: SchemaType.STRING },
+                    marks: { type: SchemaType.NUMBER },
+                    options: {
+                      type: SchemaType.ARRAY,
+                      items: { type: SchemaType.STRING }
+                    }
+                  },
+                  required: ["questionText", "difficulty", "marks", "options"]
+                }
+              }
+            },
+            required: ["sectionTitle", "instructions", "questions"]
+          }
+        }
+      },
+      required: ["sections"]
+    }
   }
 });
 

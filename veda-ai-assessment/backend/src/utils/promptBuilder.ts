@@ -24,8 +24,7 @@ export interface AssessmentResult {
 export const buildStructuredPrompt = (payload: AssessmentPayload): string => {
   const { questionTypes, totalQuestions, totalMarks, instructions } = payload;
 
-  const promptTemplate = `
-You are an expert AI Assessment Creator.
+const promptTemplate = `You are an expert AI Assessment Creator.
 Generate an assessment based on the user criteria provided below.
 
 USER CRITERIA:
@@ -33,19 +32,15 @@ USER CRITERIA:
 - Total Questions: ${totalQuestions}
 - Total Marks: ${totalMarks}
 ${instructions ? `- Additional Instructions: ${instructions}` : ''}
-CRITICAL MATH FORMATTING RULE: If the subject involves math, physics, or scientific formulas, you MUST use standard LaTeX syntax. 
-1. You must double-escape all LaTeX backslashes so they survive JSON parsing (e.g., use \\\\frac instead of \\frac, \\\\text instead of \\text).
-2. You MUST wrap all inline equations, variables, and units in single dollar signs (e.g., A force of $5 \\\\text{ N}$ is applied).
-3. You MUST wrap block/display equations in double dollar signs (e.g., $$E = mc^2$$).
 
-You MUST return the output strictly as a valid JSON object matching the EXACT schema layout below.
-You MUST create exactly one section for each Question Type requested (so there will be exactly the same number of sections as there are question types).
-You MUST name the sections sequentially as "Section A", "Section B", "Section C", etc., using the "sectionTitle" field.
-Inside each section's "instructions", specify the exact name of the Question Type along with any directions (e.g., "Multiple Choice Questions. Attempt all questions.").
+CRITICAL RULES:
+1. MATH/LATEX ESCAPING: If using math/physics formulas, use LaTeX. Because you are returning JSON, you MUST double-escape your backslashes. For example, output \\\\frac instead of \\frac, and \\\\text instead of \\text.
+2. MATH DELIMITERS: Wrap inline equations in single dollar signs (e.g., $5 \\\\text{ N}$) and block equations in double dollar signs (e.g., $$E = mc^2$$).
+3. SECTIONS: Create exactly one section for each Question Type requested. Name them sequentially ("Section A", "Section B", etc.).
+4. OPTIONS: If the question type is NOT multiple choice (e.g., Short Answer, Fill in the Blanks), you MUST leave the "options" array empty [].
 
-Do not include any conversational preamble, markdown formatting fences (e.g. \`\`\`json), or trailing text. Return ONLY the JSON object.
+You MUST return ONLY a valid JSON object matching this EXACT schema. Do not include markdown formatting fences.
 
-TARGET JSON OUTPUT TEMPLATE:
 {
   "sections": [
     {
@@ -56,20 +51,17 @@ TARGET JSON OUTPUT TEMPLATE:
           "questionText": "Question text string goes here",
           "difficulty": "Easy",
           "marks": 5,
-          "options": ["Option A", "Option B", "Option C", "Option D"] 
+          "options": ["Option A", "Option B", "Option C", "Option D"]
         }
       ]
     }
   ]
-}
-`;
+}`;
 
   return promptTemplate.trim();
 };
 
 export const parseAIResponse = (text: string): AssessmentResult => {
-  // When responseMimeType is application/json, Gemini returns pure JSON.
-  // We still strip Markdown blocks just in case it wraps it in ```json
   const cleanedText = text
     .replace(/```json\n?/g, '')
     .replace(/```[a-zA-Z]*\n?/g, '')
@@ -78,8 +70,8 @@ export const parseAIResponse = (text: string): AssessmentResult => {
 
   try {
     return JSON.parse(cleanedText);
-  } catch (error) {
-    console.error('Failed to parse AI response.', cleanedText);
+  } catch (error: any) {
+    console.error('Failed to parse AI response. Error:', error.message);
     throw new Error('Invalid JSON format from AI model');
   }
 };
