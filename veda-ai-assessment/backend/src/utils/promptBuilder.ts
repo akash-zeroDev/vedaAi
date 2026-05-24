@@ -68,7 +68,10 @@ TARGET JSON OUTPUT TEMPLATE:
 };
 
 export const parseAIResponse = (text: string): AssessmentResult => {
+  // When responseMimeType is application/json, Gemini returns pure JSON.
+  // We still strip Markdown blocks just in case it wraps it in ```json
   const cleanedText = text
+    .replace(/```json\n?/g, '')
     .replace(/```[a-zA-Z]*\n?/g, '')
     .replace(/```\n?/g, '')
     .trim();
@@ -76,15 +79,7 @@ export const parseAIResponse = (text: string): AssessmentResult => {
   try {
     return JSON.parse(cleanedText);
   } catch (error) {
-    const sanitizedText = cleanedText
-      .replace(/(?<!\\)\\(?!["\\/])/g, '\\\\')
-      .replace(/[\u0000-\u001F]+/g, ''); // Remove literal control characters (like literal unescaped newlines/tabs) that break JSON strings
-
-    try {
-      return JSON.parse(sanitizedText);
-    } catch (fallbackError) {
-      console.error('Failed to parse AI response even after sanitization.', sanitizedText);
-      throw new Error('Invalid JSON format from AI model');
-    }
+    console.error('Failed to parse AI response.', cleanedText);
+    throw new Error('Invalid JSON format from AI model');
   }
 };
