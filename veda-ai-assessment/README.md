@@ -26,9 +26,10 @@ The project is built as a full-stack TypeScript monorepo, decoupled into a robus
 ## Core Features
 - **Drag & Drop Form:** An intuitive, responsive interface for uploading reference materials and configuring question distributions.
 - **Asynchronous Job Queues:** Heavy LLM generation is offloaded to background workers via Redis/BullMQ to keep the API layer lightning-fast.
-- **Real-time WebSocket Status:** The UI automatically transitions from queued to processing to success states via live Socket.io events.
+- **Resilient Real-time Architecture:** The UI automatically transitions states via live Socket.io events, supported by a robust HTTP polling fallback to guarantee delivery across strict corporate firewalls or dropped connections.
+- **Flawless Math Rendering:** Full integration with `react-markdown` and `rehype-katex` ensures that complex LaTeX equations, physics formulas, and mathematical symbols output by the AI are perfectly parsed and rendered.
 - **High-Fidelity PDF Export:** The output exam page is injected with CSS print modifiers to strip UI navigation and backgrounds, creating perfect printed documents.
-- **Regeneration Loop:** A persistent action dock allows users to resubmit their exact form criteria to generate a fresh assessment.
+- **Service/Repository Backend:** A highly modular, decoupled Express.js architecture built on the Service pattern for clean, testable business logic.
 
 ## Environment Variables
 
