@@ -7,7 +7,7 @@ import Result from '../models/Result';
 import { io } from '../server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
 export const assessmentWorker = new Worker(
   'assessment-generation',
@@ -53,9 +53,16 @@ export const assessmentWorker = new Worker(
       });
       await newResult.save();
 
+      // Save to LLM Cache to instantly resolve duplicate requests in the future
+      if (job.data.llmHash) {
+        await redisClient.set(`llm_cache:${job.data.llmHash}`, JSON.stringify(parsedContent), 'EX', 2592000); // 30 days
+      }
 
       await Assignment.findByIdAndUpdate(assignmentId, { status: 'completed' });
 
+      // Invalidate caches since the status changed and a result was created
+      await redisClient.del('assignments:all');
+      await redisClient.del(`assignment:result:${assignmentId}`);
 
       io.emit('assignment:updated', {
         assignmentId,
@@ -72,7 +79,10 @@ export const assessmentWorker = new Worker(
 
       if (assignmentId) {
         await Assignment.findByIdAndUpdate(assignmentId, { status: 'failed' });
-
+        
+        // Invalidate cache so the UI reflects the failed status
+        await redisClient.del('assignments:all');
+        await redisClient.del(`assignment:result:${assignmentId}`);
 
         io.emit('assignment:updated', {
           assignmentId,

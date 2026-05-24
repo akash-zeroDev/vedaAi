@@ -4,6 +4,7 @@ import Header from '@/components/desktop/Header';
 import MobileHeader from '@/components/mobile/MobileHeader';
 import BottomNav from '@/components/mobile/BottomNav';
 import FloatingActionButton from '@/components/mobile/FloatingActionButton';
+import NavigationLoader from '@/components/desktop/NavigationLoader';
 
 export default function DashboardLayout({
   children,
@@ -27,6 +28,7 @@ export default function DashboardLayout({
           <Header />
         </div>
         <main className="flex-1 overflow-auto relative">
+          <NavigationLoader />
           {children}
         </main>
       </div>

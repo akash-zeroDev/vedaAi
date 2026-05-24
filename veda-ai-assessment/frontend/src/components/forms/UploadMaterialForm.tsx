@@ -14,7 +14,6 @@ const PREDEFINED_OPTIONS = [
   'Multiple Correct',
   'Integer Type'
 ];
-// currently the loadin g appears in sidebar alogn with the tab text ..but i want it to appear in the main content area ..so that it works for both mobile as well as desktop view 
 const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => {
   const store = useAssessmentStore();
   const { isConnected } = useSocketStore();

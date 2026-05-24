@@ -3,6 +3,11 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IAssignment extends Document {
   title: string;
   fileUrl?: string;
+  fileData?: {
+    type: string;
+    mimeType?: string;
+    data: string;
+  };
   dueDate: string;
   questionTypes: Array<string | { type: string; count: number; marks: number }>;
   totalQuestions: number;
@@ -14,6 +19,11 @@ export interface IAssignment extends Document {
 const AssignmentSchema: Schema = new Schema({
   title: { type: String, required: true },
   fileUrl: { type: String },
+  fileData: {
+    type: { type: String },
+    mimeType: { type: String },
+    data: { type: String },
+  },
   dueDate: { type: String, required: true },
   questionTypes: { type: [Schema.Types.Mixed], required: true },
   totalQuestions: { type: Number, required: true },

@@ -3,18 +3,23 @@
 import React from 'react';
 import { LayoutGrid, Users, BookOpen, Wrench, Library, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAssessmentStore } from '@/store/useAssessmentStore';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
 const Sidebar = () => {
   const pathname = usePathname();
-  const [loadingPath, setLoadingPath] = React.useState<string | null>(null);
+  const router = useRouter();
   const store = useAssessmentStore();
+  const { setIsNavigating } = useNavigationStore();
 
-  React.useEffect(() => {
-    setLoadingPath(null);
-  }, [pathname]);
+  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    if (pathname !== path) {
+      e.preventDefault();
+      setIsNavigating(true);
+      router.push(path);
+    }
+  };
 
   const isActive = (path: string) => {
     if (path === '/dashboard' && pathname === '/dashboard') return true;
@@ -35,33 +40,36 @@ const Sidebar = () => {
         <div className="px-[16px] mb-[24px]">
           <Link 
             href="/dashboard/create" 
-            onClick={() => store.resetForm()}
-            className="w-full flex items-center justify-center gap-[8px] bg-[#1F2937] text-white py-[12px] px-[16px] rounded-[100px] border-[2px] border-[#F97316] hover:bg-[#374151] transition-colors shadow-sm"
+            onClick={(e) => {
+              store.resetForm();
+              handleNav(e, '/dashboard/create');
+            }}
+            className="w-full flex items-center justify-center gap-[8px] bg-[#181818] text-white py-[12px] px-[24px] rounded-[100px] hover:bg-[#333] transition-colors shadow-sm"
           >
-            <img src="/aiStars.svg" alt="Create" className="w-[18px] h-[18px]" />
-            <span className="font-semibold text-[14px]">Create Assignment</span>
+            <Plus size={20} />
+            <span className="font-semibold text-[16px]">Create Assignment</span>
           </Link>
         </div>
 
-        <nav className="flex flex-col gap-[4px] px-[16px]">
-          <Link href="/dashboard" onClick={() => setLoadingPath('/dashboard')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
-            {loadingPath === '/dashboard' ? <Loader2 size={20} className="animate-spin text-[#111827]" /> : <img src="/home.svg" alt="Home" className="w-[20px] h-[20px]" />}
+        <nav className="flex-1 px-[16px] py-[8px] flex flex-col gap-[4px] overflow-y-auto">
+          <Link href="/dashboard" onClick={(e) => handleNav(e, '/dashboard')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
+            <img src="/home.svg" alt="Home" className="w-[20px] h-[20px]" />
             <span className="text-[14px]">Home</span>
           </Link>
-          <Link href="/dashboard/groups" onClick={() => setLoadingPath('/dashboard/groups')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/groups') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
-            {loadingPath === '/dashboard/groups' ? <Loader2 size={20} className="animate-spin text-[#111827]" /> : <img src="/myGroup.svg" alt="My Groups" className="w-[20px] h-[20px]" />}
+          <Link href="/dashboard/groups" onClick={(e) => handleNav(e, '/dashboard/groups')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/groups') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
+            <img src="/myGroup.svg" alt="My Groups" className="w-[20px] h-[20px]" />
             <span className="text-[14px]">My Groups</span>
           </Link>
-          <Link href="/dashboard/assignments" onClick={() => setLoadingPath('/dashboard/assignments')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/assignments') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
-            {loadingPath === '/dashboard/assignments' ? <Loader2 size={20} className="animate-spin text-[#111827]" /> : <img src="/assignment.svg" alt="Assignments" className="w-[20px] h-[20px]" />}
+          <Link href="/dashboard/assignments" onClick={(e) => handleNav(e, '/dashboard/assignments')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/assignments') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
+            <img src="/assignment.svg" alt="Assignments" className="w-[20px] h-[20px]" />
             <span className="text-[14px]">Assignments</span>
           </Link>
-          <Link href="/dashboard/toolkit" onClick={() => setLoadingPath('/dashboard/toolkit')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/toolkit') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
-            {loadingPath === '/dashboard/toolkit' ? <Loader2 size={20} className="animate-spin text-[#111827]" /> : <img src="/aiToolkit.svg" alt="AI Teacher's Toolkit" className="w-[20px] h-[20px]" />}
+          <Link href="/dashboard/toolkit" onClick={(e) => handleNav(e, '/dashboard/toolkit')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/toolkit') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
+            <img src="/aiToolkit.svg" alt="AI Teacher's Toolkit" className="w-[20px] h-[20px]" />
             <span className="text-[14px]">AI Teacher&apos;s Toolkit</span>
           </Link>
-          <Link href="/dashboard/library" onClick={() => setLoadingPath('/dashboard/library')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/library') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
-            {loadingPath === '/dashboard/library' ? <Loader2 size={20} className="animate-spin text-[#111827]" /> : <img src="/library.svg" alt="My Library" className="w-[20px] h-[20px]" />}
+          <Link href="/dashboard/library" onClick={(e) => handleNav(e, '/dashboard/library')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/library') ? 'bg-[#F3F4F6] text-[#111827] font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6]'}`}>
+            <img src="/library.svg" alt="My Library" className="w-[20px] h-[20px]" />
             <span className="text-[14px]">My Library</span>
           </Link>
         </nav>

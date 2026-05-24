@@ -1,10 +1,21 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
 const BottomNav = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { setIsNavigating } = useNavigationStore();
+
+  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    if (pathname !== path) {
+      e.preventDefault();
+      setIsNavigating(true);
+      router.push(path);
+    }
+  };
 
   const isActive = (path: string) => {
     if (path === '/dashboard' && pathname === '/dashboard') return true;
@@ -28,6 +39,7 @@ const BottomNav = () => {
             <Link
               key={item.path}
               href={item.path}
+              onClick={(e) => handleNav(e, item.path)}
               className={`flex flex-col items-center justify-center gap-[4px] transition-all duration-200 ${
                 active ? 'opacity-100 text-white' : 'opacity-40 text-white'
               }`}

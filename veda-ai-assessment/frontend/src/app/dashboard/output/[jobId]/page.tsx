@@ -91,8 +91,14 @@ const OutputPage = () => {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] w-full px-4 text-center">
-        <Loader2 className="w-10 h-10 animate-spin text-[#F97316] mb-4" />
-        <p className="text-gray-500 font-medium">Fetching your assignment...</p>
+        <div className="relative flex items-center justify-center w-24 h-24 mb-2">
+          <div className="absolute inset-0 bg-[#F97316]/10 rounded-full animate-ping"></div>
+          <div className="absolute inset-2 bg-[#F97316]/20 rounded-full animate-pulse"></div>
+          <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-full shadow-sm border border-gray-100 z-10">
+            <Loader2 className="w-6 h-6 text-[#F97316] animate-spin" />
+          </div>
+        </div>
+        <p className="text-gray-500 font-medium mt-4">Fetching your assignment...</p>
       </div>
     );
   }
@@ -116,7 +122,7 @@ const OutputPage = () => {
   const sections = Array.isArray(resultData) ? resultData : resultData.sections || [];
 
   return (
-    <div className="w-full min-h-screen bg-[#CECECE] md:bg-[#5E5E5E] pt-[104px] pb-[120px] md:pt-[20px] md:pb-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[16px] md:px-[20px] gap-[12px]">
+    <div className="w-full min-h-full bg-[#CECECE] md:bg-[#5E5E5E] pt-[104px] pb-[120px] md:pt-[20px] md:pb-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[16px] md:px-[20px] gap-[12px]">
       
       {/* Action Card */}
       <div className="w-full max-w-[1060px] bg-[#181818] rounded-[20px] lg:rounded-[32px] px-[16px] lg:px-[32px] py-[16px] lg:py-[24px] print:hidden flex flex-col gap-[16px] lg:gap-[24px]">

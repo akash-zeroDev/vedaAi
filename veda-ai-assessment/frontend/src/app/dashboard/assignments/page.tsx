@@ -98,8 +98,15 @@ export default function DashboardPage() {
       )}
       <div className="flex-1 flex flex-col">
         {isLoading ? (
-          <div className="w-full flex-1 flex items-center justify-center pb-[10vh]">
-            <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
+          <div className="w-full flex-1 flex flex-col items-center justify-center pb-[10vh] gap-4">
+            <div className="relative flex items-center justify-center w-24 h-24 mb-2">
+              <div className="absolute inset-0 bg-[#F97316]/10 rounded-full animate-ping"></div>
+              <div className="absolute inset-2 bg-[#F97316]/20 rounded-full animate-pulse"></div>
+              <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-full shadow-sm border border-gray-100 z-10">
+                <Loader2 className="w-6 h-6 text-[#F97316] animate-spin" />
+              </div>
+            </div>
+            <p className="text-gray-500 font-medium text-[15px]">Loading assignments...</p>
           </div>
         ) : filteredAssignments.length > 0 ? (
           <>
