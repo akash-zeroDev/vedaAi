@@ -42,6 +42,41 @@ export const useAssignmentLifecycle = () => {
     };
   }, [socket, store.assignmentId, router, store]);
 
+  // Robust Polling Fallback (runs alongside WebSocket)
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (store.status === 'processing' && store.assignmentId) {
+      intervalId = setInterval(async () => {
+        try {
+          const { apiFetch } = require('@/lib/api');
+          const res = await apiFetch(`/api/assignments/${store.assignmentId}/result`);
+          
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.content) {
+              store.setResultData(data.content);
+              store.setJobStatus('success');
+              router.push('/dashboard/output/' + store.assignmentId);
+            }
+          } else if (res.status === 400) {
+            // Check for failed generation
+            const err = await res.json().catch(() => ({}));
+            if (err.error && err.error.includes('failed')) {
+              store.setJobStatus('error', err.error);
+            }
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+        }
+      }, 3000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [store.status, store.assignmentId, router, store]);
+
   const submitAssignment = async () => {
     try {
       store.setJobStatus('queued');
