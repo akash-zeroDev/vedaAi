@@ -1,5 +1,7 @@
 import React from 'react';
-import Latex from 'react-latex-next';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
 export interface Question {
@@ -62,8 +64,10 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                   <div className="flex flex-row gap-[8px] md:gap-[10px]">
                     <span className="text-[12px] md:text-[16px] font-normal tracking-[-0.3px] md:tracking-[-0.64px] leading-[20px] md:leading-[25.6px] text-[#303030] shrink-0">{currentQuestionNumber}.</span>
                     <div className="flex flex-col gap-[6px] md:gap-[8px] w-full">
-                      <div className="text-[12px] md:text-[16px] font-normal tracking-[-0.3px] md:tracking-[-0.64px] leading-[20px] md:leading-[25.6px] text-[#303030] whitespace-pre-wrap">
-                        <Latex>{(question.questionText || question.text || '').replace(/\\n/g, '\n').replace(/\*?\*?(Sub-questions?|Sub-parts?|Sub questions?):?\*?\*?/gi, '').replace(/\n{3,}/g, '\n\n').trim()}</Latex>
+                      <div className="text-[12px] md:text-[16px] font-normal tracking-[-0.3px] md:tracking-[-0.64px] leading-[20px] md:leading-[25.6px] text-[#303030] whitespace-pre-wrap [&>p]:m-0">
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                          {(question.questionText || question.text || '').replace(/\\n/g, '\n').replace(/\*?\*?(Sub-questions?|Sub-parts?|Sub questions?):?\*?\*?/gi, '').replace(/\n{3,}/g, '\n\n').trim()}
+                        </ReactMarkdown>
                       </div>
                       {question.options && question.options.length > 0 && (
                         <div className="flex flex-col gap-[6px] md:gap-[8px] mt-[8px] md:mt-[12px] pl-[8px] md:pl-[12px]">
@@ -71,11 +75,13 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                             const cleanOpt = opt.trim().replace(/^(?:Option\s+)?[A-Z][\.\)]\s*/i, '').trim();
                             return (
                               <div key={optIdx} className="flex flex-row gap-[6px] md:gap-[8px] items-start">
-                                <span className="text-[12px] md:text-[16px] font-semibold text-[#303030] shrink-0">
+                                <span className="text-[12px] md:text-[16px] font-semibold text-[#303030] shrink-0 mt-[2px]">
                                   {String.fromCharCode(65 + optIdx)}.
                                 </span>
-                                <div className="text-[12px] md:text-[16px] font-normal tracking-[-0.3px] md:tracking-[-0.64px] leading-[20px] md:leading-[25.6px] text-[#303030] whitespace-pre-wrap">
-                                  <Latex>{cleanOpt.replace(/\\n/g, '\n')}</Latex>
+                                <div className="text-[12px] md:text-[16px] font-normal tracking-[-0.3px] md:tracking-[-0.64px] leading-[20px] md:leading-[25.6px] text-[#303030] whitespace-pre-wrap [&>p]:m-0">
+                                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                    {cleanOpt.replace(/\\n/g, '\n')}
+                                  </ReactMarkdown>
                                 </div>
                               </div>
                             );
