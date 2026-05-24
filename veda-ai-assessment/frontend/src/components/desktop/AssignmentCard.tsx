@@ -34,10 +34,10 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
   }, []);
 
   return (
-    <div className="flex flex-col bg-white rounded-[24px] p-[20px] md:p-[24px] border border-[#E5E7EB] shadow-[0_4px_12px_rgba(0,0,0,0.05)] w-full">
-      <div className="flex flex-col gap-[24px] md:gap-[48px] h-full justify-between">
+    <div className="flex flex-col bg-[#F6F6F6] rounded-[24px] p-[24px] w-full">
+      <div className="flex flex-col h-full justify-between gap-[40px]">
         <div className="flex flex-row items-start justify-between w-full">
-          <h2 className="text-[#2F2F2F] text-[18px] md:text-[24px] font-extrabold tracking-[-0.72px] md:tracking-[-0.96px] leading-[25.2px] md:leading-[28.8px]">
+          <h2 className="font-['Bricolage_Grotesque',sans-serif] font-[800] text-[24px] tracking-[-0.96px] leading-[28.8px] text-[#2F2F2F]">
             {assignment.title}
           </h2>
           <div className="relative" ref={popoverRef}>
@@ -47,26 +47,26 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
             >
               <MoreVertical size={24} />
             </button>
-            
+
             {isPopoverOpen && (
-              <div className="absolute right-0 top-[32px] w-[180px] bg-white rounded-[12px] shadow-[0_16px_32px_rgba(0,0,0,0.12)] border border-[#E5E7EB] py-[8px] z-10 flex flex-col">
-                <button 
+              <div className="absolute right-0 top-[32px] w-[180px] bg-[#FFFFFF] rounded-[16px] shadow-[0_16px_48px_rgba(0,0,0,0.2),0_32px_48px_rgba(0,0,0,0.05)] p-[8px] z-10 flex flex-col gap-[4px]">
+                <button
                   onClick={() => {
                     setIsViewing(true);
                     router.push(`/dashboard/output/${assignment.id}`);
                   }}
                   disabled={isViewing}
-                  className="w-full flex items-center gap-2 text-left px-[16px] py-[10px] text-[14px] font-medium text-[#4B5563] hover:bg-[#F9FAFB] transition-colors disabled:opacity-50"
+                  className="w-full flex items-center gap-[8px] text-left px-[8px] py-[6px] text-[14px] font-['Bricolage_Grotesque',sans-serif] font-[500] tracking-[-0.56px] text-[#2F2F2F] hover:bg-[#F6F6F6] rounded-[8px] transition-colors disabled:opacity-50"
                 >
                   {isViewing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {isViewing ? 'Loading...' : 'View Assignment'}
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     setIsPopoverOpen(false);
                     setIsDeleteDialogOpen(true);
                   }}
-                  className="w-full text-left px-[16px] py-[10px] text-[14px] font-medium text-[#EF4444] hover:bg-[#FEF2F2] transition-colors"
+                  className="w-full text-left px-[8px] py-[6px] text-[14px] font-['Bricolage_Grotesque',sans-serif] font-[500] tracking-[-0.56px] text-[#C53535] hover:bg-[#F6F6F6] rounded-[8px] transition-colors"
                 >
                   Delete
                 </button>
@@ -75,12 +75,12 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-[10px] md:gap-0">
-          <span className="text-black/50 text-[16px] font-normal tracking-[-0.64px] leading-[19.2px]">
-            <span className="font-extrabold text-[#2F2F2F]">Assigned on : </span>{assignment.assignedOn}
+        <div className="flex flex-row items-center justify-between w-full gap-[24px]">
+          <span className="text-[#000000]/50 font-['Bricolage_Grotesque',sans-serif] font-[400] text-[16px] tracking-[-0.64px] leading-[19.2px]">
+            <span className="font-[800] text-[#2F2F2F]">Assigned on : </span>{assignment.assignedOn}
           </span>
-          <span className="text-black/50 text-[16px] font-normal tracking-[-0.64px] leading-[19.2px]">
-            <span className="font-extrabold text-[#2F2F2F]">Due : </span>{assignment.dueDate}
+          <span className="text-[#000000]/50 font-['Bricolage_Grotesque',sans-serif] font-[400] text-[16px] tracking-[-0.64px] leading-[19.2px]">
+            <span className="font-[800] text-[#2F2F2F]">Due : </span>{assignment.dueDate}
           </span>
         </div>
       </div>
@@ -93,14 +93,14 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
               Are you sure you want to delete <span className="font-semibold">"{assignment.title}"</span>? This action cannot be undone.
             </p>
             <div className="flex items-center gap-3 mt-4">
-              <button 
+              <button
                 onClick={() => setIsDeleteDialogOpen(false)}
                 disabled={isDeleting}
                 className="flex-1 px-4 py-2 text-sm font-medium text-[#4B5563] bg-gray-100 hover:bg-gray-200 rounded-[100px] transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={async () => {
                   try {
                     setIsDeleting(true);

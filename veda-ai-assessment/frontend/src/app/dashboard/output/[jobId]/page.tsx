@@ -4,9 +4,8 @@ import React from 'react';
 import { useAssessmentStore } from '@/store/useAssessmentStore';
 import StudentHeader from '@/components/output/StudentHeader';
 import AssessmentRenderer from '@/components/output/AssessmentRenderer';
-import ActionBar from '@/components/output/ActionBar';
 import AssignmentBuilding from '@/components/output/AssignmentBuilding';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, RefreshCw } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAssignmentLifecycle } from '@/hooks/useAssignmentLifecycle';
@@ -15,14 +14,36 @@ const OutputPage = () => {
   const params = useParams();
   const jobId = params?.jobId as string;
   const store = useAssessmentStore();
-  const [isLoading, setIsLoading] = useState(!store.resultData);
+  const [isLoading, setIsLoading] = useState(!(store.resultData && store.assignmentId === jobId));
   const [error, setError] = useState<string | null>(null);
+  const [totalMarks, setTotalMarks] = useState<number>(store.totalMarks || 20);
 
-  // Attach WebSocket listener so regeneration updates are received
   useAssignmentLifecycle();
 
+  const handleRegenerate = async () => {
+    try {
+      useAssessmentStore.setState({ status: 'processing' });
+      
+      const response = await fetch(`http://localhost:8000/api/assignments/${jobId}/regenerate`, {
+        method: 'POST',
+      });
+
+      if (response.status === 202 || response.ok) {
+        useAssessmentStore.setState({ assignmentId: jobId, status: 'processing', resultData: null, errorMessage: null });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        useAssessmentStore.setState({ status: 'error', errorMessage: errorData.error || errorData.message || 'Failed to regenerate assignment.' });
+      }
+    } catch (error: any) {
+      console.error(error);
+      useAssessmentStore.setState({ status: 'error', errorMessage: error.message || 'Network error while regenerating.' });
+    }
+  };
+
+  const isProcessing = store.status === 'processing' || store.status === 'queued';
+
   useEffect(() => {
-    if (store.resultData) {
+    if (store.resultData && store.assignmentId === jobId) {
       setIsLoading(false);
       return;
     }
@@ -34,11 +55,22 @@ const OutputPage = () => {
       try {
         const res = await fetch(`http://localhost:8000/api/assignments/${jobId}/result`);
         if (!res.ok) {
-          setError('Failed to load assignment data.');
+          const errData = await res.json().catch(() => ({}));
+          const errMsg = errData.error || errData.message || 'Failed to load assignment data.';
+          setError(errMsg);
+          store.setJobStatus('error', errMsg);
           return;
         }
         const data = await res.json();
-        store.setResultData(data.content);
+        
+        if (data.assignment && data.assignment.totalMarks) {
+          setTotalMarks(data.assignment.totalMarks);
+        } else if (store.totalMarks) {
+          setTotalMarks(store.totalMarks);
+        }
+        
+        useAssessmentStore.setState({ assignmentId: jobId });
+        store.setResultData(data.content || data);
       } catch (err) {
         console.warn('Network error while fetching assignment:', err);
         setError('Failed to load assignment data.');
@@ -54,7 +86,7 @@ const OutputPage = () => {
     return <AssignmentBuilding />;
   }
 
-  const resultData = store.resultData;
+  const resultData = store.assignmentId === jobId ? store.resultData : null;
 
   if (isLoading) {
     return (
@@ -65,11 +97,18 @@ const OutputPage = () => {
     );
   }
 
-  if (error || !resultData) {
+  const displayError = error || store.errorMessage;
+
+  if (displayError || !resultData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] w-full px-4 text-center relative">
-        <p className="text-gray-500 font-medium text-base sm:text-lg">No assessment data found.</p>
-        <ActionBar />
+        <div className="bg-red-50 text-red-600 p-[16px] rounded-[16px] max-w-md w-full border border-red-200 shadow-sm mb-4">
+          <p className="font-semibold text-base sm:text-lg mb-1">Failed to generate assignment</p>
+          <p className="text-sm opacity-90">{displayError || 'No assessment data found.'}</p>
+        </div>
+        <button onClick={handleRegenerate} className="mt-2 text-[#F97316] font-medium hover:underline flex items-center gap-2">
+          <RefreshCw size={18} /> Retry Generation
+        </button>
       </div>
     );
   }
@@ -77,20 +116,37 @@ const OutputPage = () => {
   const sections = Array.isArray(resultData) ? resultData : resultData.sections || [];
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 py-4 sm:py-12 print:py-0 print:bg-white relative">
-      <button 
-        onClick={() => window.print()}
-        className="fixed bottom-8 right-8 sm:bottom-12 sm:right-12 bg-[#F97316] text-white p-4 rounded-full shadow-[0_8px_30px_rgb(249,115,22,0.3)] hover:bg-[#EA580C] hover:scale-105 hover:-translate-y-1 transition-all duration-300 print:hidden z-50 flex items-center justify-center group"
-        title="Download / Print Assignment"
-      >
-        <Download size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
-      </button>
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-12 bg-white shadow-sm print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 border border-gray-200 print:border-none flex flex-col gap-6 sm:gap-8">
-        <StudentHeader />
-        <div className="w-full border-t-[1.5px] border-black/80" />
+    <div className="w-full min-h-screen bg-[#5E5E5E] py-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[20px] gap-[12px]">
+      
+      <div className="w-full max-w-[1060px] bg-[#181818]/80 rounded-[32px] px-[32px] py-[24px] print:hidden border-t-[4px] border-[#181818]/80 flex flex-col gap-[24px]">
+        <h2 className="text-[20px] font-bold leading-[28px] tracking-[-0.8px] text-white font-['Bricolage_Grotesque',sans-serif]">
+          Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
+        </h2>
+        <div className="flex flex-row gap-[16px]">
+          <button 
+            onClick={() => window.print()}
+            className="bg-white text-[#303030] text-[16px] font-medium leading-[22px] tracking-[-0.64px] rounded-[100px] px-[24px] py-[11px] hover:bg-gray-200 transition-colors flex items-center gap-[8px]"
+          >
+            <Download size={18} />
+            Download as PDF
+          </button>
+          
+          <button 
+            onClick={handleRegenerate}
+            disabled={isProcessing}
+            className="bg-white text-[#303030] text-[16px] font-medium leading-[22px] tracking-[-0.64px] rounded-[100px] px-[24px] py-[11px] hover:bg-gray-200 transition-colors flex items-center gap-[8px] disabled:opacity-50"
+          >
+            {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+            {isProcessing ? 'Generating...' : 'Regenerate Assessment'}
+          </button>
+        </div>
+      </div>
+
+      <div className="w-full max-w-[1060px] bg-white rounded-[32px] px-[32px] py-[32px] shadow-[0_4px_40px_rgba(0,0,0,0.08)] print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 print:rounded-none flex flex-col gap-[32px]">
+        <StudentHeader totalMarks={totalMarks} />
         <AssessmentRenderer data={sections} />
       </div>
-      <ActionBar />
+
     </div>
   );
 };

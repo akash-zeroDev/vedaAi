@@ -15,7 +15,6 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   isConnected: false,
 
   connect: () => {
-    // Prevent multiple connections
     if (get().socket?.connected) return;
 
     const socket = io(BACKEND_URL, {

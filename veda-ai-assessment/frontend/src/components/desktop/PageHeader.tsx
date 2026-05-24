@@ -23,14 +23,6 @@ const PageHeader = () => {
         </div>
       </div>
 
-      <div className="flex md:hidden w-[48px] shrink-0"></div>
-
-      <div className="hidden md:flex">
-        <Link href="/dashboard/create" className="flex items-center gap-[8px] px-[20px] py-[10px] bg-[#111827] text-white rounded-[100px] hover:bg-[#374151] transition-colors shadow-sm">
-          <Plus size={18} />
-          <span className="text-[14px] font-semibold">Create Assignment</span>
-        </Link>
-      </div>
     </div>
   );
 };

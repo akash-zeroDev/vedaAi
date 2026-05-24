@@ -80,13 +80,23 @@ export const getAssignmentResult = async (req: Request, res: Response): Promise<
   try {
     const { id } = req.params;
     const result = await Result.findOne({ assignmentId: id });
-    
+    const assignment = await Assignment.findById(id);
+    if (!assignment) {
+      res.status(404).json({ error: 'Assignment not found' });
+      return;
+    }
+
+    if (assignment.status === 'failed') {
+      res.status(400).json({ error: 'Generation failed for this assignment. Please try regenerating.' });
+      return;
+    }
+
     if (!result) {
       res.status(404).json({ error: 'Result not found for this assignment' });
       return;
     }
 
-    res.status(200).json(result);
+    res.status(200).json({ ...result.toJSON(), assignment });
   } catch (error) {
     console.error('Error fetching assignment result:', error);
     res.status(500).json({ error: 'Internal server error' });

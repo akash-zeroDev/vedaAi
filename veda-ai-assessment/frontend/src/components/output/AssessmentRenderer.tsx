@@ -40,41 +40,41 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
   if (!Array.isArray(data)) return null;
 
   return (
-    <div className="w-full flex flex-col gap-10 font-sans text-black">
+    <div className="w-full flex flex-col gap-[32px] font-sans text-black">
       {data.map((section, sectionIndex) => (
         <div key={sectionIndex} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-wide border-b border-black/20 pb-2">
+          <div className="flex flex-col gap-[8px] items-center text-center">
+            <h2 className="text-[24px] font-semibold tracking-[-0.96px] leading-[38.4px] text-[#303030]">
               {section.sectionTitle}
             </h2>
             {section.instructions && (
-              <p className="text-sm sm:text-base italic text-gray-700 whitespace-pre-wrap">
+              <p className="text-[16px] italic text-[#303030] leading-[25.6px] whitespace-pre-wrap">
                 {section.instructions.replace(/\\n/g, '\n')}
               </p>
             )}
           </div>
 
-          <div className="flex flex-col gap-6 sm:pl-2">
+          <div className="flex flex-col gap-[24px] w-full">
             {section.questions?.map((question, qIndex) => {
               const currentQuestionNumber = globalQuestionIndex++;
               return (
-                <div key={qIndex} className="flex flex-col sm:flex-row justify-between items-start gap-4 w-full break-inside-avoid">
-                  <div className="flex flex-row gap-3">
-                    <span className="font-bold text-sm sm:text-base">{currentQuestionNumber}.</span>
-                    <div className="flex flex-col gap-2 w-full">
-                      <div className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                <div key={qIndex} className="flex flex-col sm:flex-row justify-between items-start gap-[16px] w-full break-inside-avoid">
+                  <div className="flex flex-row gap-[10px]">
+                    <span className="text-[16px] font-normal tracking-[-0.64px] leading-[25.6px] text-[#303030]">{currentQuestionNumber}.</span>
+                    <div className="flex flex-col gap-[8px] w-full">
+                      <div className="text-[16px] font-normal tracking-[-0.64px] leading-[25.6px] text-[#303030] whitespace-pre-wrap">
                         <Latex>{(question.questionText || question.text || '').replace(/\\n/g, '\n').replace(/\*?\*?(Sub-questions?|Sub-parts?|Sub questions?):?\*?\*?/gi, '').replace(/\n{3,}/g, '\n\n').trim()}</Latex>
                       </div>
                       {question.options && question.options.length > 0 && (
-                        <div className="flex flex-col gap-2 mt-3 pl-1 sm:pl-2">
+                        <div className="flex flex-col gap-[8px] mt-[12px] pl-[12px]">
                           {question.options.map((opt, optIdx) => {
                             const cleanOpt = opt.trim().replace(/^(?:Option\s+)?[A-Z][\.\)]\s*/i, '').trim();
                             return (
-                              <div key={optIdx} className="flex flex-row gap-2 items-start">
-                                <span className="font-semibold text-gray-600 text-sm sm:text-base w-5 shrink-0">
+                              <div key={optIdx} className="flex flex-row gap-[8px] items-start">
+                                <span className="text-[16px] font-semibold text-[#303030] shrink-0">
                                   {String.fromCharCode(65 + optIdx)}.
                                 </span>
-                                <div className="text-sm sm:text-base text-gray-800 whitespace-pre-wrap">
+                                <div className="text-[16px] font-normal tracking-[-0.64px] leading-[25.6px] text-[#303030] whitespace-pre-wrap">
                                   <Latex>{cleanOpt.replace(/\\n/g, '\n')}</Latex>
                                 </div>
                               </div>
@@ -84,11 +84,11 @@ const AssessmentRenderer: React.FC<AssessmentRendererProps> = ({ data }) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-row items-center justify-end w-full sm:w-auto gap-3 shrink-0 mt-1 sm:mt-0">
+                  <div className="flex flex-row items-center justify-end w-full sm:w-auto gap-[12px] shrink-0 mt-[4px] sm:mt-0">
                     <span className={`rounded-full text-xs font-medium px-2.5 py-0.5 print:hidden ${getBadgeColor(question.difficulty)}`}>
                       {question.difficulty}
                     </span>
-                    <span className="font-bold text-sm sm:text-base whitespace-nowrap">[{question.marks} Marks]</span>
+                    <span className="text-[16px] font-normal tracking-[-0.64px] leading-[25.6px] text-[#303030] whitespace-nowrap">[{question.marks} Marks]</span>
                   </div>
                 </div>
               );

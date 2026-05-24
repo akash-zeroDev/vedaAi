@@ -41,8 +41,6 @@ io.on('connection', (socket) => {
 const startServer = async () => {
   await connectDB();
   
-  // Redis is initialized and connects automatically on import.
-  // We reference redisClient here just to ensure the module is loaded and not stripped out.
   if (redisClient.status === 'ready') {
     console.log('Redis client is ready');
   }

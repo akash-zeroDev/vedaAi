@@ -1,35 +1,52 @@
 import React from 'react';
 
-const StudentHeader = () => {
+interface StudentHeaderProps {
+  totalMarks?: number;
+}
+
+const StudentHeader: React.FC<StudentHeaderProps> = ({ totalMarks = 20 }) => {
   return (
-    <div className="w-full bg-white text-black py-6 md:py-8 font-sans">
-      <div className="flex flex-col md:flex-row gap-6 md:gap-10 w-full">
-        <div className="flex flex-row items-end gap-2 flex-[2] w-full">
-          <label className="font-bold text-[15px] whitespace-nowrap text-black">Student Name:</label>
-          <input 
-            type="text" 
-            className="flex-1 border-b border-black/50 bg-transparent outline-none px-2 py-1 text-[15px] text-black focus:border-black rounded-none shadow-none"
-          />
+    <div className="w-full flex flex-col gap-[16px] font-sans">
+      
+      <div className="flex flex-col items-center justify-center text-center">
+        <h1 className="text-[32px] font-bold text-[#303030] leading-[42px]">
+          Delhi Public School, Sector-4, Bokaro
+        </h1>
+        <p className="text-[24px] font-semibold tracking-[-0.96px] text-[#303030] leading-[38px]">
+          Subject: English
+        </p>
+        <p className="text-[24px] font-semibold tracking-[-0.96px] text-[#303030] leading-[38px]">
+          Class: 5th
+        </p>
+      </div>
+
+      <div className="flex flex-row justify-between items-center w-full mt-[24px]">
+        <span className="text-[18px] font-semibold tracking-[-0.72px] text-[#303030]">
+          Time Allowed: 45 minutes
+        </span>
+        <span className="text-[18px] font-semibold tracking-[-0.72px] text-[#303030]">
+          Maximum Marks: {totalMarks}
+        </span>
+      </div>
+
+      <div className="w-full mt-[8px]">
+        <p className="text-[18px] font-semibold tracking-[-0.72px] text-[#303030]">
+          All questions are compulsory unless stated otherwise.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-[12px] w-full mt-[16px]">
+        <div className="text-[18px] font-semibold tracking-[-0.72px] text-[#303030]">
+          Name: <span className="inline-block border-b-[1.5px] border-[#303030] w-[300px] ml-2"></span>
         </div>
-        
-        <div className="flex flex-row gap-6 w-full md:flex-[1.5]">
-          <div className="flex flex-row items-end gap-2 flex-[1.5]">
-            <label className="font-bold text-[15px] whitespace-nowrap text-black">Roll Number:</label>
-            <input 
-              type="text" 
-              className="flex-1 border-b border-black/50 bg-transparent outline-none px-2 py-1 text-[15px] text-black focus:border-black rounded-none shadow-none"
-            />
-          </div>
-          
-          <div className="flex flex-row items-end gap-2 flex-1">
-            <label className="font-bold text-[15px] whitespace-nowrap text-black">Section:</label>
-            <input 
-              type="text" 
-              className="flex-1 border-b border-black/50 bg-transparent outline-none px-2 py-1 text-[15px] text-black focus:border-black rounded-none shadow-none"
-            />
-          </div>
+        <div className="text-[18px] font-semibold tracking-[-0.72px] text-[#303030]">
+          Roll Number: <span className="inline-block border-b-[1.5px] border-[#303030] w-[250px] ml-2"></span>
+        </div>
+        <div className="text-[18px] font-semibold tracking-[-0.72px] text-[#303030]">
+          Class: 5th &nbsp;&nbsp;&nbsp; Section: <span className="inline-block border-b-[1.5px] border-[#303030] w-[200px] ml-2"></span>
         </div>
       </div>
+      
     </div>
   );
 };

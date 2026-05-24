@@ -39,7 +39,9 @@ CRITICAL MATH FORMATTING RULE: If the subject involves math, physics, or scienti
 3. You MUST wrap block/display equations in double dollar signs (e.g., $$E = mc^2$$).
 
 You MUST return the output strictly as a valid JSON object matching the EXACT schema layout below.
-You MUST create exactly one section for each Question Type requested. The "title" of each section MUST be the exact name of the Question Type (e.g., "Multiple Choice Questions").
+You MUST create exactly one section for each Question Type requested (so there will be exactly the same number of sections as there are question types).
+You MUST name the sections sequentially as "Section A", "Section B", "Section C", etc., using the "sectionTitle" field.
+Inside each section's "instructions", specify the exact name of the Question Type along with any directions (e.g., "Multiple Choice Questions. Attempt all questions.").
 
 Do not include any conversational preamble, markdown formatting fences (e.g. \`\`\`json), or trailing text. Return ONLY the JSON object.
 
@@ -47,11 +49,11 @@ TARGET JSON OUTPUT TEMPLATE:
 {
   "sections": [
     {
-      "title": "Multiple Choice Questions",
-      "instruction": "Attempt all questions",
+      "sectionTitle": "Section A",
+      "instructions": "Multiple Choice Questions. Attempt all questions.",
       "questions": [
         {
-          "text": "Question text string goes here",
+          "questionText": "Question text string goes here",
           "difficulty": "Easy",
           "marks": 5,
           "options": ["Option A", "Option B", "Option C", "Option D"] 
@@ -74,9 +76,6 @@ export const parseAIResponse = (text: string): AssessmentResult => {
   try {
     return JSON.parse(cleanedText);
   } catch (error) {
-    // If standard parsing fails, attempt to sanitize single-escaped LaTeX backslashes
-    // This regex finds backslashes that are NOT preceded by a backslash AND NOT followed by a quote or backslash
-    // e.g. \frac -> \\frac, but \" -> \" and \\frac -> \\frac
     const sanitizedText = cleanedText
       .replace(/(?<!\\)\\(?!["\\/])/g, '\\\\')
       .replace(/[\u0000-\u001F]+/g, ''); // Remove literal control characters (like literal unescaped newlines/tabs) that break JSON strings

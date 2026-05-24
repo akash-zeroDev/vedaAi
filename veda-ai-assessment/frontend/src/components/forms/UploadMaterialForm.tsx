@@ -39,7 +39,6 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
   return (
     <div className="flex flex-col w-full max-w-[850px] mx-auto gap-[24px] py-[24px] px-[16px]">
       
-      {/* Page Header with Socket Status */}
       <div className="flex flex-row items-start gap-[12px] w-full px-[8px] mb-[-8px]">
         <div className="relative group flex items-center justify-center mt-[4px] p-[4px] cursor-help">
           <div 
@@ -60,16 +59,13 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
         </div>
       </div>
 
-      {/* Progress Stepper - Outside Card */}
       <div className="flex flex-row items-center gap-[12px] w-full px-[8px]">
         <div className="h-[4px] flex-1 bg-[#1A1A1A] rounded-full"></div>
         <div className="h-[4px] flex-1 bg-[#DBDBDB] rounded-full"></div>
       </div>
 
-      {/* Main White Card */}
       <div className="flex flex-col bg-white rounded-[24px] px-[24px] md:px-[40px] py-[32px] md:py-[40px] gap-[32px] border-[1.5px] border-[#E5E5E5] shadow-sm">
         
-        {/* Assignment Details Header */}
         <div className="flex flex-col gap-[4px]">
           <h2 className="text-[#1A1A1A] text-[20px] font-bold tracking-tight leading-tight">
             Assignment Details
@@ -79,7 +75,6 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
           </p>
         </div>
 
-        {/* Upload Area */}
         <div className="flex flex-col gap-[16px] w-full">
           <div className="flex flex-col items-center justify-center bg-transparent rounded-[24px] border-[2px] border-dashed border-[#E5E5E5] px-[32px] py-[40px] gap-[16px] w-full">
             <div className="flex items-center justify-center text-[#1A1A1A]">
@@ -147,7 +142,6 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
             {questionTypes.map((qType, index) => (
               <div key={index} className="flex flex-col md:flex-row items-start md:items-center justify-between gap-[12px] w-full">
                 
-                {/* Left Side: Dropdown + X */}
                 <div className="flex flex-row items-center gap-[12px] w-full md:flex-1">
                   <div className="flex-1 flex flex-row items-center justify-between px-[20px] py-[10px] rounded-[100px] border-[1.5px] border-[#E5E5E5] bg-transparent focus-within:border-[#A3A3A3] transition-colors relative">
                     {PREDEFINED_OPTIONS.includes(qType.type) ? (
@@ -194,7 +188,6 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
                   </button>
                 </div>
 
-                {/* Right Side: Two Pills */}
                 <div className="flex flex-row items-center gap-[16px] shrink-0 w-full md:w-auto">
                   <div className="flex-1 md:flex-none flex flex-row items-center justify-between px-[6px] py-[4px] rounded-[100px] border-[1.5px] border-[#E5E5E5] bg-transparent md:w-[130px]">
                     <button 
@@ -255,7 +248,7 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
         </div>
 
         <div className="flex flex-col gap-[8px] w-full mt-[8px]">
-          <label className="text-[14px] font-bold text-[#1A1A1A]">Additional Information (For better output)</label>
+          <label className="text-[14px] font-bold text-[#1A1A1A]">Description</label>
           <div className="relative w-full rounded-[16px] border-[1.5px] border-[#E5E5E5] bg-transparent focus-within:border-[#A3A3A3] transition-all p-[16px]">
             <textarea 
               rows={3} 
@@ -272,18 +265,24 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
 
       </div>
 
-      {/* Action Bar - Outside Card */}
       <div className="flex flex-row items-center justify-between w-full pt-[8px] px-[8px]">
         <button className="flex flex-row items-center gap-[8px] px-[24px] py-[12px] rounded-[100px] text-[#1A1A1A] bg-white border-[1.5px] border-[#E5E5E5] text-[14px] font-bold hover:bg-[#F5F5F5] transition-colors shadow-sm">
           <span>&larr;</span> Previous
         </button>
-        <button 
-          onClick={onSubmit}
-          disabled={status === 'queued' || status === 'processing' || store.questionTypes.length === 0}
-          className="flex flex-row items-center gap-[8px] px-[32px] py-[12px] rounded-[100px] bg-[#1A1A1A] text-white text-[14px] font-bold hover:bg-[#404040] shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {status === 'queued' || status === 'processing' ? 'Generating...' : 'Next'} <span>&rarr;</span>
-        </button>
+        <div className="flex flex-col items-end gap-[4px]">
+          <button 
+            onClick={onSubmit}
+            disabled={status === 'queued' || status === 'processing' || store.questionTypes.length === 0 || (!store.file && store.instructions.trim().length === 0)}
+            className="flex flex-row items-center gap-[8px] px-[32px] py-[12px] rounded-[100px] bg-[#1A1A1A] text-white text-[14px] font-bold hover:bg-[#404040] shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {status === 'queued' || status === 'processing' ? 'Generating...' : 'Next'} <span>&rarr;</span>
+          </button>
+          {store.questionTypes.length === 0 ? (
+            <span className="text-red-500 text-[12px] font-medium mr-[12px]">Please add at least one question type.</span>
+          ) : (!store.file && store.instructions.trim().length === 0) ? (
+            <span className="text-red-500 text-[12px] font-medium mr-[12px]">Please provide either a file or a description.</span>
+          ) : null}
+        </div>
       </div>
 
     </div>

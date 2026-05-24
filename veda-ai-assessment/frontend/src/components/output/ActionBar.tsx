@@ -21,7 +21,6 @@ const ActionBar = () => {
 
       if (response.status === 202 || response.ok) {
         useAssessmentStore.setState({ assignmentId: jobId, status: 'processing', resultData: null });
-        // Handled by WebSocket listener now!
       } else {
         useAssessmentStore.setState({ status: 'error' });
       }

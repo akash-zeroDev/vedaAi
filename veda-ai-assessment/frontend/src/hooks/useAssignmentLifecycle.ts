@@ -30,7 +30,7 @@ export const useAssignmentLifecycle = () => {
           store.setJobStatus('success');
           router.push('/dashboard/output/' + store.assignmentId);
         } else if (payload.status === 'failed') {
-          store.setJobStatus('error');
+          store.setJobStatus('error', payload.error || 'An unexpected error occurred during generation.');
         }
       }
     };
@@ -66,13 +66,14 @@ export const useAssignmentLifecycle = () => {
       if (response.status === 202 || response.ok) {
         const data = await response.json();
         const id = data.assignmentId || data.jobId || data.id;
-        useAssessmentStore.setState({ assignmentId: id, status: 'processing' });
+        useAssessmentStore.setState({ assignmentId: id, status: 'processing', errorMessage: null });
       } else {
-        store.setJobStatus('error');
+        const errorData = await response.json().catch(() => ({}));
+        store.setJobStatus('error', errorData.error || errorData.message || 'Failed to submit assignment.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submission error:', error);
-      store.setJobStatus('error');
+      store.setJobStatus('error', error.message || 'Network error occurred while submitting.');
     }
   };
 

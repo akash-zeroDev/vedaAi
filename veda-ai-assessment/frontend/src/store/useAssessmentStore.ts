@@ -39,6 +39,7 @@ export interface JobTracking {
   assignmentId: string | null;
   status: 'idle' | 'queued' | 'processing' | 'success' | 'error';
   resultData: AssessmentResult | null;
+  errorMessage?: string | null;
 }
 
 export interface AssessmentStore extends FormData, JobTracking {
@@ -46,8 +47,9 @@ export interface AssessmentStore extends FormData, JobTracking {
   addQuestionType: (questionType: QuestionType) => void;
   updateQuestionType: (index: number, questionType: QuestionType) => void;
   removeQuestionType: (index: number) => void;
-  setJobStatus: (status: JobTracking['status']) => void;
+  setJobStatus: (status: JobTracking['status'], errorMessage?: string) => void;
   setResultData: (data: AssessmentResult) => void;
+  resetForm: () => void;
 }
 
 export const useAssessmentStore = create<AssessmentStore>((set) => ({
@@ -61,6 +63,7 @@ export const useAssessmentStore = create<AssessmentStore>((set) => ({
   assignmentId: null,
   status: 'idle',
   resultData: null,
+  errorMessage: null,
   setFormField: (field, value) => set((state) => ({ ...state, [field]: value })),
   addQuestionType: (questionType) => set((state) => ({
     questionTypes: [...state.questionTypes, questionType]
@@ -73,6 +76,19 @@ export const useAssessmentStore = create<AssessmentStore>((set) => ({
   removeQuestionType: (index) => set((state) => ({
     questionTypes: state.questionTypes.filter((_, i) => i !== index)
   })),
-  setJobStatus: (status) => set({ status }),
+  setJobStatus: (status, errorMessage) => set({ status, errorMessage: errorMessage || null }),
   setResultData: (resultData) => set({ resultData }),
+  resetForm: () => set({
+    file: null,
+    title: '',
+    dueDate: '',
+    questionTypes: [],
+    totalQuestions: 0,
+    totalMarks: 0,
+    instructions: '',
+    assignmentId: null,
+    status: 'idle',
+    resultData: null,
+    errorMessage: null,
+  }),
 }));

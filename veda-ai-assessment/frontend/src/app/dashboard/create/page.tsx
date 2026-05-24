@@ -13,7 +13,6 @@ export default function CreateAssignmentPage() {
   const { submitAssignment } = useAssignmentLifecycle();
 
   React.useEffect(() => {
-    // Reset status when landing back on the create page
     if (store.status === 'success' || store.status === 'error') {
       useAssessmentStore.setState({ status: 'idle' });
     }
