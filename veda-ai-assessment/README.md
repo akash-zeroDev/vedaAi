@@ -4,7 +4,7 @@ An AI-powered assessment creator featuring asynchronous generation, real-time UI
 
 ## Architecture
 
-The project is built as a full-stack JavaScript/TypeScript monorepo, decoupled into a robust frontend client and an asynchronous job-processing backend.
+The project is built as a full-stack TypeScript monorepo, decoupled into a robust frontend client and an asynchronous job-processing backend.
 
 ### Frontend
 - **Framework:** Next.js 15 (App Router)
@@ -80,3 +80,4 @@ npm run dev
 ```
 
 The application will be available at `http://localhost:3000`.
+Deployed Link : https://veda-ai-q3j4.vercel.app/ ;
