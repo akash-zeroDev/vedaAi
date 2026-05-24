@@ -7,7 +7,7 @@ import Result from '../models/Result';
 import { io } from '../server';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
 export const assessmentWorker = new Worker(
   'assessment-generation',
