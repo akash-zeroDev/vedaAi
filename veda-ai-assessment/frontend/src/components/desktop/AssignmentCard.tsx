@@ -86,7 +86,7 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
       </div>
 
       {isDeleteDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-[24px] p-6 max-w-sm w-full shadow-2xl flex flex-col gap-4">
             <h3 className="text-xl font-bold text-[#111827]">Delete Assignment?</h3>
             <p className="text-[#4B5563] text-sm">
