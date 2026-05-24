@@ -196,9 +196,8 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
                                   }
                                   setOpenDropdownIndex(null);
                                 }}
-                                className={`w-full text-left px-[16px] py-[10px] text-[13px] font-semibold transition-colors hover:bg-[#F5F5F5] ${
-                                  qType.type === opt ? 'text-[#1A1A1A] bg-[#F5F5F5]' : 'text-[#4B5563]'
-                                }`}
+                                className={`w-full text-left px-[16px] py-[10px] text-[13px] font-semibold transition-colors hover:bg-[#F5F5F5] ${qType.type === opt ? 'text-[#1A1A1A] bg-[#F5F5F5]' : 'text-[#4B5563]'
+                                  }`}
                               >
                                 {opt}
                               </button>

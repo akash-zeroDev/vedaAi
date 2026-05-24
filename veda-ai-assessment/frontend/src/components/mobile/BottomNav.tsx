@@ -25,18 +25,22 @@ const BottomNav = () => {
         {navItems.map((item) => {
           const active = isActive(item.path);
           return (
-            <Link 
-              key={item.path} 
+            <Link
+              key={item.path}
               href={item.path}
-              className={`flex flex-col items-center justify-center gap-[4px] transition-opacity duration-200 ${active ? 'opacity-100 text-white' : 'opacity-25 text-white'}`}
+              className={`flex flex-col items-center justify-center gap-[4px] transition-all duration-200 ${
+                active ? 'opacity-100 text-white' : 'opacity-40 text-white'
+              }`}
             >
-              <img 
-                src={item.icon} 
-                alt={item.label} 
-                className="w-[20px] h-[20px]" 
+              <img
+                src={`${item.icon}?v=2`}
+                alt={item.label}
+                className="w-[20px] h-[20px]"
                 style={{ filter: 'brightness(0) invert(1)' }}
               />
-              <span className="font-['Bricolage_Grotesque',sans-serif] font-[600] text-[12px] tracking-[-0.48px] leading-[16.8px]">
+              <span className={`font-['Bricolage_Grotesque',sans-serif] text-[12px] tracking-[-0.48px] leading-[16.8px] ${
+                active ? 'font-[800]' : 'font-[500]'
+              }`}>
                 {item.label}
               </span>
             </Link>
