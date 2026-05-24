@@ -15,7 +15,8 @@ const ActionBar = () => {
     try {
       useAssessmentStore.setState({ status: 'processing' });
       
-      const response = await fetch(`http://localhost:8000/api/assignments/${jobId}/regenerate`, {
+      const { apiFetch } = require('@/lib/api');
+      const response = await apiFetch(`/api/assignments/${jobId}/regenerate`, {
         method: 'POST',
       });
 

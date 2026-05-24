@@ -58,7 +58,8 @@ export const useAssignmentLifecycle = () => {
         formData.append('file', store.file);
       }
 
-      const response = await fetch('http://localhost:8000/api/assignments', {
+      const { apiFetch } = require('@/lib/api');
+      const response = await apiFetch('/api/assignments', {
         method: 'POST',
         body: formData,
       });

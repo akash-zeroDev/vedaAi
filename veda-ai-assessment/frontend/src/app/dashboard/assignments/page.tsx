@@ -22,7 +22,8 @@ export default function DashboardPage() {
     store.resetForm();
     const fetchAssignments = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/assignments');
+        const { apiFetch } = require('@/lib/api');
+        const res = await apiFetch('/api/assignments');
         if (!res.ok) throw new Error('Failed to fetch assignments');
         const data = await res.json();
         

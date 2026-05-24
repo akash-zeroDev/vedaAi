@@ -24,7 +24,8 @@ const OutputPage = () => {
     try {
       useAssessmentStore.setState({ status: 'processing' });
       
-      const response = await fetch(`http://localhost:8000/api/assignments/${jobId}/regenerate`, {
+      const { apiFetch } = require('@/lib/api');
+      const response = await apiFetch(`/api/assignments/${jobId}/regenerate`, {
         method: 'POST',
       });
 
@@ -53,7 +54,8 @@ const OutputPage = () => {
 
     const fetchResult = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/assignments/${jobId}/result`);
+        const { apiFetch } = require('@/lib/api');
+        const res = await apiFetch(`/api/assignments/${jobId}/result`);
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           const errMsg = errData.error || errData.message || 'Failed to load assignment data.';

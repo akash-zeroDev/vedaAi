@@ -104,7 +104,8 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
                 onClick={async () => {
                   try {
                     setIsDeleting(true);
-                    const res = await fetch(`http://localhost:8000/api/assignments/${assignment.id}`, { method: 'DELETE' });
+                    const { apiFetch } = require('@/lib/api');
+                    const res = await apiFetch(`/api/assignments/${assignment.id}`, { method: 'DELETE' });
                     if (res.ok) {
                       setIsDeleteDialogOpen(false);
                       if (onDelete) onDelete(assignment.id);
