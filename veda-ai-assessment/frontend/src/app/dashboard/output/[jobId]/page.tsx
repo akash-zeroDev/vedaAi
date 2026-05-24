@@ -119,23 +119,23 @@ const OutputPage = () => {
     <div className="w-full min-h-screen bg-[#CECECE] md:bg-[#5E5E5E] pt-[104px] pb-[120px] md:pt-[20px] md:pb-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[16px] md:px-[20px] gap-[12px]">
       
       {/* Action Card */}
-      <div className="w-full max-w-[1060px] bg-[#181818] rounded-[20px] md:rounded-[32px] px-[16px] md:px-[32px] py-[16px] md:py-[24px] print:hidden flex flex-col gap-[16px] md:gap-[24px]">
-        <p className="text-[13px] md:text-[20px] font-semibold md:font-bold leading-[20px] md:leading-[28px] tracking-[-0.3px] md:tracking-[-0.8px] text-white font-['Bricolage_Grotesque',sans-serif]">
+      <div className="w-full max-w-[1060px] bg-[#181818] rounded-[20px] lg:rounded-[32px] px-[16px] lg:px-[32px] py-[16px] lg:py-[24px] print:hidden flex flex-col gap-[16px] lg:gap-[24px]">
+        <p className="text-[13px] lg:text-[20px] font-semibold lg:font-bold leading-[20px] lg:leading-[28px] tracking-[-0.3px] lg:tracking-[-0.8px] text-white font-['Bricolage_Grotesque',sans-serif]">
           Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
         </p>
-        <div className="flex flex-row gap-[10px] md:gap-[16px]">
+        <div className="flex flex-row flex-wrap lg:flex-nowrap gap-[10px] lg:gap-[16px]">
           <button 
             onClick={() => window.print()}
-            className="flex-1 md:flex-none bg-white text-[#303030] text-[13px] md:text-[16px] font-semibold md:font-medium leading-[20px] md:leading-[22px] tracking-[-0.3px] md:tracking-[-0.64px] rounded-[100px] px-[16px] md:px-[24px] py-[9px] md:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] md:gap-[8px]"
+            className="flex-1 lg:flex-none bg-white text-[#303030] text-[13px] lg:text-[16px] font-semibold lg:font-medium leading-[20px] lg:leading-[22px] tracking-[-0.3px] lg:tracking-[-0.64px] rounded-[100px] px-[16px] lg:px-[24px] py-[9px] lg:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] lg:gap-[8px] whitespace-nowrap"
           >
             <Download size={16} />
-            <span className="md:inline">Download as PDF</span>
+            <span>Download as PDF</span>
           </button>
           
           <button 
             onClick={handleRegenerate}
             disabled={isProcessing}
-            className="flex-1 md:flex-none bg-white text-[#303030] text-[13px] md:text-[16px] font-semibold md:font-medium leading-[20px] md:leading-[22px] tracking-[-0.3px] md:tracking-[-0.64px] rounded-[100px] px-[16px] md:px-[24px] py-[9px] md:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] md:gap-[8px] disabled:opacity-50"
+            className="flex-1 lg:flex-none bg-white text-[#303030] text-[13px] lg:text-[16px] font-semibold lg:font-medium leading-[20px] lg:leading-[22px] tracking-[-0.3px] lg:tracking-[-0.64px] rounded-[100px] px-[16px] lg:px-[24px] py-[9px] lg:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] lg:gap-[8px] disabled:opacity-50 whitespace-nowrap"
           >
             {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
             {isProcessing ? 'Generating...' : 'Regenerate Assessment'}

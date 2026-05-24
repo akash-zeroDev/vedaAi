@@ -59,9 +59,9 @@ const FilterBar: React.FC<FilterBarProps> = ({ searchQuery, onSearchChange, acti
           </div>
         )}
       </div>
-      <div className="flex flex-row items-center">
-        <div className="flex flex-row items-center w-[200px] md:w-[380px] px-[16px] py-[10px] gap-[8px] bg-white rounded-[100px] border border-[#E5E7EB]">
-          <Search size={18} className="text-[#A9A9A9]" />
+      <div className="flex flex-row items-center flex-1 justify-end ml-4">
+        <div className="flex flex-row items-center flex-1 w-full max-w-[380px] px-[16px] py-[10px] gap-[8px] bg-white rounded-[100px] border border-[#E5E7EB]">
+          <Search size={18} className="text-[#A9A9A9] shrink-0" />
           <input
             type="text"
             placeholder="Search Name"

@@ -8,7 +8,7 @@ interface AssignmentGridProps {
 
 const AssignmentGrid: React.FC<AssignmentGridProps> = ({ assignments, onDelete }) => {
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-[20px] md:gap-x-[16px] md:gap-y-[20px]">
+    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-[20px] lg:gap-x-[16px] lg:gap-y-[20px]">
       {assignments.length > 0 ? (
         assignments.map((assignment) => (
           <AssignmentCard key={assignment.id} assignment={assignment} onDelete={onDelete} />
