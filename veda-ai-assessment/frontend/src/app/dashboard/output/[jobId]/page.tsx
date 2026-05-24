@@ -116,33 +116,35 @@ const OutputPage = () => {
   const sections = Array.isArray(resultData) ? resultData : resultData.sections || [];
 
   return (
-    <div className="w-full min-h-screen bg-[#5E5E5E] py-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[20px] gap-[12px]">
+    <div className="w-full min-h-screen bg-[#CECECE] md:bg-[#5E5E5E] pt-[104px] pb-[120px] md:pt-[20px] md:pb-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[16px] md:px-[20px] gap-[12px]">
       
-      <div className="w-full max-w-[1060px] bg-[#181818]/80 rounded-[32px] px-[32px] py-[24px] print:hidden border-t-[4px] border-[#181818]/80 flex flex-col gap-[24px]">
-        <h2 className="text-[20px] font-bold leading-[28px] tracking-[-0.8px] text-white font-['Bricolage_Grotesque',sans-serif]">
+      {/* Action Card */}
+      <div className="w-full max-w-[1060px] bg-[#181818] rounded-[20px] md:rounded-[32px] px-[16px] md:px-[32px] py-[16px] md:py-[24px] print:hidden flex flex-col gap-[16px] md:gap-[24px]">
+        <p className="text-[13px] md:text-[20px] font-semibold md:font-bold leading-[20px] md:leading-[28px] tracking-[-0.3px] md:tracking-[-0.8px] text-white font-['Bricolage_Grotesque',sans-serif]">
           Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
-        </h2>
-        <div className="flex flex-row gap-[16px]">
+        </p>
+        <div className="flex flex-row gap-[10px] md:gap-[16px]">
           <button 
             onClick={() => window.print()}
-            className="bg-white text-[#303030] text-[16px] font-medium leading-[22px] tracking-[-0.64px] rounded-[100px] px-[24px] py-[11px] hover:bg-gray-200 transition-colors flex items-center gap-[8px]"
+            className="flex-1 md:flex-none bg-white text-[#303030] text-[13px] md:text-[16px] font-semibold md:font-medium leading-[20px] md:leading-[22px] tracking-[-0.3px] md:tracking-[-0.64px] rounded-[100px] px-[16px] md:px-[24px] py-[9px] md:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] md:gap-[8px]"
           >
-            <Download size={18} />
-            Download as PDF
+            <Download size={16} />
+            <span className="md:inline">Download as PDF</span>
           </button>
           
           <button 
             onClick={handleRegenerate}
             disabled={isProcessing}
-            className="bg-white text-[#303030] text-[16px] font-medium leading-[22px] tracking-[-0.64px] rounded-[100px] px-[24px] py-[11px] hover:bg-gray-200 transition-colors flex items-center gap-[8px] disabled:opacity-50"
+            className="flex-1 md:flex-none bg-white text-[#303030] text-[13px] md:text-[16px] font-semibold md:font-medium leading-[20px] md:leading-[22px] tracking-[-0.3px] md:tracking-[-0.64px] rounded-[100px] px-[16px] md:px-[24px] py-[9px] md:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] md:gap-[8px] disabled:opacity-50"
           >
-            {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+            {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
             {isProcessing ? 'Generating...' : 'Regenerate Assessment'}
           </button>
         </div>
       </div>
 
-      <div className="w-full max-w-[1060px] bg-white rounded-[32px] px-[32px] py-[32px] shadow-[0_4px_40px_rgba(0,0,0,0.08)] print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 print:rounded-none flex flex-col gap-[32px]">
+      {/* PDF Card */}
+      <div className="w-full max-w-[1060px] bg-white rounded-[20px] md:rounded-[32px] px-[16px] md:px-[32px] py-[20px] md:py-[32px] shadow-[0_4px_40px_rgba(0,0,0,0.08)] print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 print:rounded-none flex flex-col gap-[24px] md:gap-[32px]">
         <StudentHeader totalMarks={totalMarks} />
         <AssessmentRenderer data={sections} />
       </div>

@@ -26,20 +26,17 @@ const FilterBar: React.FC<FilterBarProps> = ({ searchQuery, onSearchChange, acti
   }, []);
 
   return (
-    <div className="w-full flex flex-row items-center justify-between px-10 rounded-[20px] relative">
+    <div className="w-full flex flex-row items-center justify-between px-[16px] py-[12px] bg-white rounded-[16px] shadow-sm">
       <div className="relative" ref={dropdownRef}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className={`flex flex-row items-center gap-[4px] transition-colors ${activeFilter !== 'All' ? 'text-[#F97316]' : 'text-[#A9A9A9]'}`}
+          className={`flex flex-row items-center gap-[8px] transition-colors ${activeFilter !== 'All' ? 'text-[#F97316]' : 'text-[#A9A9A9]'}`}
         >
-          <Filter size={20} className={activeFilter !== 'All' ? 'text-[#F97316]' : 'text-[#A9A9A9]'} />
-          <span className="font-['Bricolage_Grotesque',sans-serif] font-[700] text-[14px] tracking-[-0.56px] leading-[19.6px] hidden md:block">
-            Filter By {activeFilter !== 'All' ? `: ${activeFilter}` : ''}
+          <Filter size={18} className={activeFilter !== 'All' ? 'text-[#F97316]' : 'text-[#A9A9A9]'} />
+          <span className="font-['Bricolage_Grotesque',sans-serif] font-[500] text-[14px]">
+            Filter {activeFilter !== 'All' ? `: ${activeFilter}` : ''}
           </span>
-          <span className="font-['Bricolage_Grotesque',sans-serif] font-[700] text-[14px] tracking-[-0.56px] leading-[19.6px] block md:hidden">
-            Filter
-          </span>
-          <ChevronDown size={16} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isOpen && (
@@ -63,14 +60,14 @@ const FilterBar: React.FC<FilterBarProps> = ({ searchQuery, onSearchChange, acti
         )}
       </div>
       <div className="flex flex-row items-center">
-        <div className="flex flex-row items-center w-[228px] md:w-[380px] px-[16px] py-[11px] gap-[10px] bg-[#FFFFFF] rounded-[100px] border border-[#000000]/20">
-          <Search size={20} className="text-[#A9A9A9]" />
+        <div className="flex flex-row items-center w-[200px] md:w-[380px] px-[16px] py-[10px] gap-[8px] bg-white rounded-[100px] border border-[#E5E7EB]">
+          <Search size={18} className="text-[#A9A9A9]" />
           <input
             type="text"
-            placeholder="Search Assignment..."
+            placeholder="Search Name"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="flex-1 bg-transparent outline-none font-['Bricolage_Grotesque',sans-serif] font-[700] text-[14px] tracking-[-0.56px] leading-[19.6px] text-[#111827] placeholder:text-[#A9A9A9] w-full"
+            className="flex-1 bg-transparent outline-none font-['Bricolage_Grotesque',sans-serif] font-[400] text-[14px] text-[#111827] placeholder:text-[#A9A9A9] w-full"
           />
         </div>
       </div>

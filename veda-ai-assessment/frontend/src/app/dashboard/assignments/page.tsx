@@ -83,37 +83,100 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="flex flex-col  w-full min-h-full pt-[96px] pb-[120px] px-[16px] md:pt-[48px] md:pb-[48px] md:px-[48px] gap-[24px] bg-[#FFFFFF] md:rounded-tl-[40px]">
+    <div className="relative z-0 flex flex-col w-full min-h-full pt-[96px] pb-[120px] px-[16px] md:pt-[48px] md:pb-[48px] md:px-[24px] gap-[20px] md:gap-[12px] bg-[#CECECE] md:rounded-tl-[40px] overflow-hidden">
+      {/* Desktop Background Gradient Ellipse */}
+      <div className="hidden md:block absolute w-[1113px] h-[428px] left-[47px] top-[560px] bg-[#4C4C4C] opacity-40 blur-[400px] rounded-[100%] pointer-events-none z-0" />
+      
       <PageHeader />
-      <FilterBar 
-        searchQuery={searchQuery} 
-        onSearchChange={setSearchQuery} 
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-      />
-      <div className="mt-4 ">
+      {assignments.length > 0 && (
+        <FilterBar 
+          searchQuery={searchQuery} 
+          onSearchChange={setSearchQuery} 
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+        />
+      )}
+      <div className="flex-1 flex flex-col">
         {isLoading ? (
-          <div className="w-full flex justify-center py-24">
+          <div className="w-full flex-1 flex items-center justify-center pb-[10vh]">
             <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
           </div>
         ) : filteredAssignments.length > 0 ? (
-          <AssignmentGrid assignments={filteredAssignments} onDelete={handleDelete} />
+          <>
+            <AssignmentGrid assignments={filteredAssignments} onDelete={handleDelete} />
+            <div className="hidden md:flex sticky bottom-[32px] w-full justify-center z-50 pointer-events-none mt-[32px]">
+              <button 
+                onClick={() => {
+                  store.resetForm();
+                  setIsNavigatingToCreate(true);
+                  router.push('/dashboard/create');
+                }}
+                disabled={isNavigatingToCreate}
+                className="pointer-events-auto flex flex-row items-center justify-center gap-[8px] px-[24px] py-[14px] bg-[#181818] rounded-[100px] text-white shadow-lg transition-transform hover:scale-105 disabled:opacity-50"
+              >
+                {isNavigatingToCreate ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus size={20} className="text-white" strokeWidth={2.5} />}
+                <span className="font-['Bricolage_Grotesque',sans-serif] text-[15px] font-[600] tracking-[-0.3px]">
+                  Create Assignment
+                </span>
+              </button>
+            </div>
+          </>
         ) : (
-          <div className="w-full flex flex-col items-center justify-center py-16 gap-4">
-             <div className="flex flex-col items-center max-w-[400px] text-center gap-4">
-                <svg width="180" height="180" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
-                  <circle cx="60" cy="60" r="50" fill="#F3F4F6"/>
-                  <rect x="35" y="25" width="50" height="70" rx="8" fill="white" stroke="#E5E7EB" strokeWidth="4"/>
-                  <line x1="45" y1="40" x2="75" y2="40" stroke="#E5E7EB" strokeWidth="4" strokeLinecap="round"/>
-                  <line x1="45" y1="55" x2="75" y2="55" stroke="#E5E7EB" strokeWidth="4" strokeLinecap="round"/>
-                  <line x1="45" y1="70" x2="65" y2="70" stroke="#E5E7EB" strokeWidth="4" strokeLinecap="round"/>
-                  <circle cx="70" cy="70" r="20" fill="white" stroke="#D1D5DB" strokeWidth="6"/>
-                  <line x1="84" y1="84" x2="100" y2="100" stroke="#D1D5DB" strokeWidth="8" strokeLinecap="round"/>
-                  <line x1="62" y1="62" x2="78" y2="78" stroke="#EF4444" strokeWidth="6" strokeLinecap="round"/>
-                  <line x1="78" y1="62" x2="62" y2="78" stroke="#EF4444" strokeWidth="6" strokeLinecap="round"/>
+          <div className="w-full flex-1 flex flex-col items-center justify-center pb-[12vh] gap-0">
+             <div className="flex flex-col items-center max-w-[400px] text-center">
+                <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-[24px]">
+                  {/* Background Circle */}
+                  <circle cx="120" cy="120" r="95" fill="#F4F4F5"/>
+                  
+                  {/* Top Right Pill */}
+                  <g filter="url(#empty-shadow)">
+                    <rect x="150" y="45" width="48" height="24" rx="12" fill="white"/>
+                    <circle cx="162" cy="57" r="4" fill="#A78BFA"/>
+                    <rect x="172" y="53" width="16" height="8" rx="4" fill="#DDD6FE"/>
+                  </g>
+
+                  {/* Left Squiggle */}
+                  <path d="M55 85 C 35 75, 45 45, 65 65 C 80 80, 50 105, 40 85" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+                  {/* Bottom Left Sparkle */}
+                  <path d="M65 155 Q 70 155 70 150 Q 70 155 75 155 Q 70 155 70 160 Q 70 155 65 155 Z" fill="#3B82F6" stroke="#3B82F6" strokeWidth="2" strokeLinejoin="round"/>
+                  
+                  {/* Right Dot */}
+                  <circle cx="185" cy="100" r="3.5" fill="#3B82F6"/>
+
+                  {/* Document */}
+                  <g filter="url(#empty-shadow-lg)">
+                    <rect x="80" y="60" width="80" height="100" rx="8" fill="white"/>
+                    <rect x="92" y="76" width="32" height="8" rx="4" fill="#111827"/>
+                    <rect x="92" y="96" width="56" height="6" rx="3" fill="#E5E7EB"/>
+                    <rect x="92" y="112" width="56" height="6" rx="3" fill="#E5E7EB"/>
+                    <rect x="92" y="128" width="40" height="6" rx="3" fill="#E5E7EB"/>
+                    <rect x="92" y="144" width="24" height="6" rx="3" fill="#E5E7EB"/>
+                  </g>
+
+                  {/* Magnifying Glass */}
+                  <g>
+                    {/* Handle */}
+                    <line x1="145" y1="145" x2="168" y2="168" stroke="#E5E0F1" strokeWidth="14" strokeLinecap="round"/>
+                    {/* Lens Rim & Background */}
+                    <circle cx="120" cy="120" r="40" fill="rgba(238, 235, 245, 0.85)" stroke="white" strokeWidth="6"/>
+                    
+                    {/* Red X */}
+                    <line x1="106" y1="106" x2="134" y2="134" stroke="#EF4444" strokeWidth="8" strokeLinecap="round"/>
+                    <line x1="134" y1="106" x2="106" y2="134" stroke="#EF4444" strokeWidth="8" strokeLinecap="round"/>
+                  </g>
+
+                  <defs>
+                    <filter id="empty-shadow" x="-10%" y="-10%" width="120%" height="120%">
+                      <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#000000" floodOpacity="0.05"/>
+                    </filter>
+                    <filter id="empty-shadow-lg" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000000" floodOpacity="0.08"/>
+                    </filter>
+                  </defs>
                 </svg>
-                <h3 className="text-xl font-bold text-[#111827]">No assignments yet</h3>
-                <p className="text-[#4B5563] text-sm leading-relaxed mb-4">
+                <h3 className="text-[20px] md:text-[24px] font-bold text-[#111827] tracking-[-0.64px] mb-[12px]">No assignments yet</h3>
+                <p className="text-[#5E5E5E] text-[14px] leading-[20px] text-center max-w-[340px] mb-[24px] font-medium tracking-[-0.28px]">
                   Create your first assignment to start collecting and grading student submissions. You can set up rubrics, define marking criteria, and let AI assist with grading.
                 </p>
                 <button 
@@ -123,10 +186,10 @@ export default function DashboardPage() {
                     router.push('/dashboard/create');
                   }}
                   disabled={isNavigatingToCreate}
-                  className="pointer-events-auto flex flex-row items-center justify-center gap-[10px] px-[24px] py-[12px] bg-[#181818] rounded-[100px] text-white shadow-lg transition-transform hover:scale-105 disabled:opacity-50"
+                  className="pointer-events-auto flex flex-row items-center justify-center gap-[8px] px-[24px] py-[14px] bg-[#181818] rounded-[100px] text-white shadow-lg transition-transform hover:scale-105 disabled:opacity-50"
                 >
-                  {isNavigatingToCreate ? <Loader2 className="w-5 h-5 animate-spin" /> : <img src="/aiStars.svg" alt="Create" className="w-[20px] h-[20px]" />}
-                  <span className="font-['Bricolage_Grotesque',sans-serif] text-[15px] font-[500]">
+                  {isNavigatingToCreate ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus size={20} className="text-white" strokeWidth={2.5} />}
+                  <span className="font-['Bricolage_Grotesque',sans-serif] text-[15px] font-[600] tracking-[-0.3px]">
                     Create Your First Assignment
                   </span>
                 </button>
@@ -134,29 +197,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-
-      {filteredAssignments.length > 0 && (
-        <div className="sticky bottom-[32px] w-full flex justify-center z-50 pointer-events-none">
-          <button 
-            onClick={() => {
-              store.resetForm();
-              setIsNavigatingToCreate(true);
-              router.push('/dashboard/create');
-            }}
-            disabled={isNavigatingToCreate}
-            className="pointer-events-auto flex flex-row items-center justify-center gap-[10px] px-[32px] py-[16px] bg-[#181818] rounded-[100px] text-white shadow-[0_32px_48px_rgba(0,0,0,0.2),0_16px_48px_rgba(0,0,0,0.12)] transition-transform hover:scale-105 disabled:opacity-50"
-          >
-            {isNavigatingToCreate ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <img src="/aiStars.svg" alt="Create" className="w-[20px] h-[20px]" />
-            )}
-            <span className="font-['Bricolage_Grotesque',sans-serif] text-[16px] font-[500] tracking-[-0.64px]">
-              Create Assignment
-            </span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }

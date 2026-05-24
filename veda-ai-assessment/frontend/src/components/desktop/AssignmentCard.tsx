@@ -34,13 +34,13 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
   }, []);
 
   return (
-    <div className="flex flex-col bg-[#F6F6F6] rounded-[24px] p-[24px] w-full">
-      <div className="flex flex-col h-full justify-between gap-[40px]">
-        <div className="flex flex-row items-start justify-between w-full">
-          <h2 className="font-['Bricolage_Grotesque',sans-serif] font-[800] text-[24px] tracking-[-0.96px] leading-[28.8px] text-[#2F2F2F]">
+    <div className="flex flex-col bg-[#FFFFFF] rounded-[24px] p-[24px] w-full">
+      <div className="flex flex-col h-full justify-between gap-[20px]">
+        <div className="relative flex flex-row items-start w-full min-h-[32px]">
+          <h2 className="w-full text-left font-['Bricolage_Grotesque',sans-serif] font-[800] text-[24px] tracking-[-0.96px] leading-[28.8px] text-[#2F2F2F] pr-[32px]">
             {assignment.title}
           </h2>
-          <div className="relative" ref={popoverRef}>
+          <div className="absolute right-0 top-0" ref={popoverRef}>
             <button
               onClick={() => setIsPopoverOpen(!isPopoverOpen)}
               className="p-[4px] hover:bg-[#F3F4F6] rounded-[100px] transition-colors text-[#A9A9A9]"
