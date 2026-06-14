@@ -8,13 +8,13 @@ interface AssignmentGridProps {
 
 const AssignmentGrid: React.FC<AssignmentGridProps> = ({ assignments, onDelete }) => {
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-[20px] lg:gap-x-[16px] lg:gap-y-[20px]">
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 pb-8">
       {assignments.length > 0 ? (
         assignments.map((assignment) => (
           <AssignmentCard key={assignment.id} assignment={assignment} onDelete={onDelete} />
         ))
       ) : (
-        <div className="col-span-full py-12 text-center text-[#5E5E5E]">
+        <div className="col-span-full py-12 text-center text-slate-500 text-sm">
           No assignments found matching your search.
         </div>
       )}

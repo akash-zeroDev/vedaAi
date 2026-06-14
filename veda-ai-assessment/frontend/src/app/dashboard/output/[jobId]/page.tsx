@@ -124,17 +124,17 @@ const OutputPage = () => {
   const sections = Array.isArray(resultData) ? resultData : resultData.sections || [];
 
   return (
-    <div className="w-full min-h-full bg-[#CECECE] md:bg-[#5E5E5E] pt-[104px] pb-[120px] md:pt-[20px] md:pb-[20px] print:py-0 print:bg-white relative flex flex-col items-center px-[16px] md:px-[20px] gap-[12px]">
+    <div className="relative z-10 flex flex-col w-full h-full items-center gap-[24px] print:p-0 print:bg-white">
       
       {/* Action Card */}
-      <div className="w-full max-w-[1060px] bg-[#181818] rounded-[20px] lg:rounded-[32px] px-[16px] lg:px-[32px] py-[16px] lg:py-[24px] print:hidden flex flex-col gap-[16px] lg:gap-[24px]">
-        <p className="text-[13px] lg:text-[20px] font-semibold lg:font-bold leading-[20px] lg:leading-[28px] tracking-[-0.3px] lg:tracking-[-0.8px] text-white font-['Bricolage_Grotesque',sans-serif]">
+      <div className="w-full max-w-[1060px] bg-white rounded-3xl border border-slate-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] px-[16px] lg:px-[32px] py-[16px] lg:py-[24px] print:hidden flex flex-col gap-[16px] lg:gap-[24px]">
+        <p className="text-[13px] lg:text-[20px] font-semibold lg:font-bold leading-[20px] lg:leading-[28px] tracking-[-0.3px] lg:tracking-[-0.8px] text-slate-900 font-['Bricolage_Grotesque',sans-serif]">
           Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
         </p>
         <div className="flex flex-row flex-wrap lg:flex-nowrap gap-[10px] lg:gap-[16px]">
           <button 
             onClick={() => window.print()}
-            className="flex-1 lg:flex-none bg-white text-[#303030] text-[13px] lg:text-[16px] font-semibold lg:font-medium leading-[20px] lg:leading-[22px] tracking-[-0.3px] lg:tracking-[-0.64px] rounded-[100px] px-[16px] lg:px-[24px] py-[9px] lg:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] lg:gap-[8px] whitespace-nowrap"
+            className="flex-1 lg:flex-none bg-slate-50 text-slate-700 text-[13px] lg:text-[16px] font-medium leading-[20px] lg:leading-[22px] tracking-[-0.3px] lg:tracking-[-0.64px] rounded-full border border-slate-200 px-[16px] lg:px-[24px] py-[9px] lg:py-[11px] hover:bg-slate-100 transition-colors flex items-center justify-center gap-[6px] lg:gap-[8px] whitespace-nowrap"
           >
             <Download size={16} />
             <span>Download as PDF</span>
@@ -143,7 +143,7 @@ const OutputPage = () => {
           <button 
             onClick={handleRegenerate}
             disabled={isProcessing}
-            className="flex-1 lg:flex-none bg-white text-[#303030] text-[13px] lg:text-[16px] font-semibold lg:font-medium leading-[20px] lg:leading-[22px] tracking-[-0.3px] lg:tracking-[-0.64px] rounded-[100px] px-[16px] lg:px-[24px] py-[9px] lg:py-[11px] hover:bg-gray-200 transition-colors flex items-center justify-center gap-[6px] lg:gap-[8px] disabled:opacity-50 whitespace-nowrap"
+            className="flex-1 lg:flex-none bg-indigo-50 text-indigo-700 text-[13px] lg:text-[16px] font-medium leading-[20px] lg:leading-[22px] tracking-[-0.3px] lg:tracking-[-0.64px] rounded-full border border-indigo-200 px-[16px] lg:px-[24px] py-[9px] lg:py-[11px] hover:bg-indigo-100 transition-colors flex items-center justify-center gap-[6px] lg:gap-[8px] disabled:opacity-50 whitespace-nowrap"
           >
             {isProcessing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
             {isProcessing ? 'Generating...' : 'Regenerate Assessment'}
@@ -152,7 +152,7 @@ const OutputPage = () => {
       </div>
 
       {/* PDF Card */}
-      <div className="w-full max-w-[1060px] bg-white rounded-[20px] md:rounded-[32px] px-[16px] md:px-[32px] py-[20px] md:py-[32px] shadow-[0_4px_40px_rgba(0,0,0,0.08)] print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 print:rounded-none flex flex-col gap-[24px] md:gap-[32px]">
+      <div className="w-full max-w-[1060px] bg-white rounded-[20px] md:rounded-[32px] px-[16px] md:px-[32px] py-[20px] md:py-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 print:rounded-none flex flex-col gap-[24px] md:gap-[32px]">
         <StudentHeader totalMarks={totalMarks} />
         <AssessmentRenderer data={sections} />
       </div>

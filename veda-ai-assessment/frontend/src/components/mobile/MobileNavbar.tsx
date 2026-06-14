@@ -7,10 +7,10 @@ const MobileNavbar = () => {
       <div className="flex flex-row items-center justify-between w-full h-[56px] bg-white rounded-[16px] pl-[12px] pr-[16px]">
         <div className="flex flex-row items-center gap-[8px]">
           <div className="w-[28px] h-[28px] bg-[#2F2F2F] rounded-[7px] flex items-center justify-center">
-            <span className="text-white font-bold text-[14px]">V</span>
+            <span className="text-white font-bold text-[14px]">G</span>
           </div>
           <span className="text-[#2F2F2F] text-[20px] font-bold tracking-[-1.2px] leading-[28px]">
-            VedaAI
+            Graphite
           </span>
         </div>
         <div className="flex flex-row items-center gap-[12px]">

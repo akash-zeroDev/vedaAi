@@ -1,25 +1,33 @@
-import React from 'react';
-import { ArrowLeft, Plus } from 'lucide-react';
-import Link from 'next/link';
+import React, { ReactNode } from 'react';
+import { ArrowLeft } from 'lucide-react';
 
-const PageHeader = () => {
+interface PageHeaderProps {
+  children?: ReactNode;
+}
+
+const PageHeader = ({ children }: PageHeaderProps) => {
   return (
-    <div className="flex flex-row items-center relative w-full min-h-[48px]">
-      <button className="flex md:hidden items-center justify-center w-[48px] h-[48px] rounded-full bg-[#E5E7EB] shrink-0 absolute left-0 z-10">
-        <ArrowLeft size={24} className="text-[#111827]" strokeWidth={2.5} />
-      </button>
+    <div className="flex flex-row items-center justify-between relative w-full pt-4 md:pt-6 mb-8">
+      <div className="flex items-center">
+        <button className="flex md:hidden items-center justify-center w-[40px] h-[40px] rounded-full hover:bg-slate-100 shrink-0 absolute left-0 z-10 transition-colors">
+          <ArrowLeft size={20} className="text-slate-700" strokeWidth={2.5} />
+        </button>
 
-      <div className="flex flex-col w-full items-center md:items-start justify-center md:justify-start gap-[2px] relative z-0">
-        <div className="flex flex-row items-center justify-center md:justify-start gap-[12px]">
-          <div className="hidden md:block w-[12px] h-[12px] rounded-full bg-[#4BCE6D] ring-[4px] ring-[#4BCE6D]/40 shadow-sm"></div>
-          <h1 className="text-[#111827] text-[18px] md:text-[20px] font-bold tracking-[-0.64px] md:tracking-[-0.8px] leading-[22.4px] md:leading-[28px] text-center md:text-left">
+        <div className="flex flex-col w-full items-center md:items-start justify-center md:justify-start relative z-0 pl-12 md:pl-0">
+          <h1 className="text-slate-900 text-3xl font-bold tracking-tight text-center md:text-left">
             Assignments
           </h1>
+          <p className="hidden md:block text-slate-500 text-sm mt-1 text-center md:text-left">
+            Manage and create assignments for your classes.
+          </p>
         </div>
-        <p className="hidden md:block text-[#5E5E5E] text-[14px] font-medium tracking-[-0.56px] leading-[19.6px] text-center md:text-left mt-[4px]">
-          Manage and create assignments for your classes.
-        </p>
       </div>
+      
+      {children && (
+        <div className="flex items-center shrink-0">
+          {children}
+        </div>
+      )}
     </div>
   );
 };

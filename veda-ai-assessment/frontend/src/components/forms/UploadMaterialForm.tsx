@@ -37,7 +37,7 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
     }
   };
 
-  const { questionTypes, setFormField, instructions, dueDate, title, totalQuestions, totalMarks, status } = store;
+  const { questionTypes, setFormField, instructions, dueDate, title, totalQuestions, totalMarks, status, errorMessage } = store;
 
   useEffect(() => {
     const totalQ = questionTypes.reduce((acc, curr) => acc + curr.count, 0);
@@ -88,6 +88,15 @@ const UploadMaterialForm: React.FC<UploadMaterialFormProps> = ({ onSubmit }) => 
       </div>
 
       <div className="flex flex-col bg-white/50 md:bg-white rounded-[24px] px-[16px] md:px-[40px] py-[24px] md:py-[40px] gap-[32px] md:border-[1.5px] border-[#E5E5E5] md:shadow-sm">
+
+        {errorMessage && (
+          <div className="w-full bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between">
+            <span>{errorMessage}</span>
+            <button onClick={() => store.setJobStatus('idle')} className="text-red-500 hover:text-red-700">
+              <X size={16} />
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col gap-[4px]">
           <h2 className="text-[#1A1A1A] text-[20px] font-bold tracking-tight leading-tight">

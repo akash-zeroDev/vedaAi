@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Loader2 } from 'lucide-react';
+import { MoreVertical, Loader2, Calendar, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export interface Assignment {
@@ -34,69 +34,69 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
   }, []);
 
   return (
-    <div className="flex flex-col bg-[#FFFFFF] rounded-[24px] p-[24px] w-full">
-      <div className="flex flex-col h-full justify-between gap-[20px]">
-        <div className="relative flex flex-row items-start w-full min-h-[32px]">
-          <h2 className="w-full text-left font-['Bricolage_Grotesque',sans-serif] font-[800] text-[24px] tracking-[-0.96px] leading-[28.8px] text-[#2F2F2F] pr-[32px]">
-            {assignment.title}
-          </h2>
-          <div className="absolute right-0 top-0" ref={popoverRef}>
+    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] transition-all duration-200 hover:shadow-md hover:border-slate-200 relative group cursor-pointer"
+         onClick={() => router.push(`/dashboard/output/${assignment.id}`)}
+    >
+      <h2 className="text-lg font-semibold text-slate-900 mb-4 pr-8 line-clamp-1">
+        {assignment.title}
+      </h2>
+
+      <div className="flex items-center gap-4 text-sm text-slate-500">
+        <span>Assigned on <span className="font-medium text-slate-700">{assignment.assignedOn}</span></span>
+        <span>Due <span className="font-medium text-slate-700">{assignment.dueDate}</span></span>
+      </div>
+
+      <div className="absolute right-4 top-4" ref={popoverRef}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsPopoverOpen(!isPopoverOpen);
+          }}
+          className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 rounded-full p-2 focus:opacity-100 text-slate-400 hover:text-slate-600"
+        >
+          <MoreVertical size={18} />
+        </button>
+
+        {isPopoverOpen && (
+          <div className="absolute right-0 top-10 w-44 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.1)] p-1.5 z-20 flex flex-col gap-1 animate-in fade-in slide-in-from-top-2 duration-200"
+               onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-              className="p-[4px] hover:bg-[#F3F4F6] rounded-[100px] transition-colors text-[#A9A9A9]"
+              onClick={() => {
+                setIsViewing(true);
+                router.push(`/dashboard/output/${assignment.id}`);
+              }}
+              disabled={isViewing}
+              className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors disabled:opacity-50"
             >
-              <MoreVertical size={24} />
+              {isViewing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {isViewing ? 'Opening...' : 'View Details'}
             </button>
-
-            {isPopoverOpen && (
-              <div className="absolute right-0 top-[32px] w-[180px] bg-[#FFFFFF] rounded-[16px] shadow-[0_16px_48px_rgba(0,0,0,0.2),0_32px_48px_rgba(0,0,0,0.05)] p-[8px] z-10 flex flex-col gap-[4px]">
-                <button
-                  onClick={() => {
-                    setIsViewing(true);
-                    router.push(`/dashboard/output/${assignment.id}`);
-                  }}
-                  disabled={isViewing}
-                  className="w-full flex items-center gap-[8px] text-left px-[8px] py-[6px] text-[14px] font-['Bricolage_Grotesque',sans-serif] font-[500] tracking-[-0.56px] text-[#2F2F2F] hover:bg-[#F6F6F6] rounded-[8px] transition-colors disabled:opacity-50"
-                >
-                  {isViewing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {isViewing ? 'Loading...' : 'View Assignment'}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsPopoverOpen(false);
-                    setIsDeleteDialogOpen(true);
-                  }}
-                  className="w-full text-left px-[8px] py-[6px] text-[14px] font-['Bricolage_Grotesque',sans-serif] font-[500] tracking-[-0.56px] text-[#C53535] hover:bg-[#F6F6F6] rounded-[8px] transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            <div className="h-px bg-slate-100 my-0.5 mx-2" />
+            <button
+              onClick={() => {
+                setIsPopoverOpen(false);
+                setIsDeleteDialogOpen(true);
+              }}
+              className="w-full text-left px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            >
+              Delete
+            </button>
           </div>
-        </div>
-
-        <div className="flex flex-row items-center justify-between w-full gap-[24px]">
-          <span className="text-[#000000]/50 font-['Bricolage_Grotesque',sans-serif] font-[400] text-[16px] tracking-[-0.64px] leading-[19.2px]">
-            <span className="font-[800] text-[#2F2F2F]">Assigned on : </span>{assignment.assignedOn}
-          </span>
-          <span className="text-[#000000]/50 font-['Bricolage_Grotesque',sans-serif] font-[400] text-[16px] tracking-[-0.64px] leading-[19.2px]">
-            <span className="font-[800] text-[#2F2F2F]">Due : </span>{assignment.dueDate}
-          </span>
-        </div>
+        )}
       </div>
 
       {isDeleteDialogOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-[24px] p-6 max-w-sm w-full shadow-2xl flex flex-col gap-4">
-            <h3 className="text-xl font-bold text-[#111827]">Delete Assignment?</h3>
-            <p className="text-[#4B5563] text-sm">
-              Are you sure you want to delete <span className="font-semibold">"{assignment.title}"</span>? This action cannot be undone.
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col gap-4 scale-100 animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-slate-900">Delete Assignment?</h3>
+            <p className="text-slate-500 text-sm">
+              Are you sure you want to delete <span className="font-medium text-slate-900">"{assignment.title}"</span>? This action cannot be undone.
             </p>
-            <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center gap-3 mt-2">
               <button
                 onClick={() => setIsDeleteDialogOpen(false)}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2 text-sm font-medium text-[#4B5563] bg-gray-100 hover:bg-gray-200 rounded-[100px] transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -117,9 +117,9 @@ const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, onDelete })
                   }
                 }}
                 disabled={isDeleting}
-                className="flex-1 flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-[100px] transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50"
+                className="flex-1 flex justify-center items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
               >
-                {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Delete'}
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete'}
               </button>
             </div>
           </div>

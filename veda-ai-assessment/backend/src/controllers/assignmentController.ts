@@ -6,7 +6,7 @@ export const createAssignment = async (req: Request, res: Response): Promise<voi
   try {
     const body = { ...req.body };
     if (typeof body.questionTypes === 'string') {
-      try { body.questionTypes = JSON.parse(body.questionTypes); } catch (e) {}
+      try { body.questionTypes = JSON.parse(body.questionTypes); } catch (e) { }
     }
     if (typeof body.totalQuestions === 'string') body.totalQuestions = Number(body.totalQuestions);
     if (typeof body.totalMarks === 'string') body.totalMarks = Number(body.totalMarks);

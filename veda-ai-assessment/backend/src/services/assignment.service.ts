@@ -24,7 +24,7 @@ export class AssignmentService {
 
     if (cachedContent) {
       console.log('LLM Cache hit! Skipping generation.');
-      
+
       const newAssignment = new Assignment({
         ...payload,
         fileData,
@@ -105,7 +105,7 @@ export class AssignmentService {
 
     const result = await Result.findOne({ assignmentId: id });
     const assignment = await Assignment.findById(id);
-    
+
     if (!assignment) throw new Error('NOT_FOUND: Assignment not found');
     if (assignment.status === 'failed') throw new Error('FAILED: Generation failed for this assignment. Please try regenerating.');
     if (!result) throw new Error('NOT_FOUND: Result not found for this assignment');
@@ -125,7 +125,7 @@ export class AssignmentService {
   static async deleteAssignment(id: string) {
     await Assignment.findByIdAndDelete(id);
     await Result.findOneAndDelete({ assignmentId: id });
-    
+
     await redisClient.del('assignments:all');
     await redisClient.del(`assignment:result:${id}`);
   }
@@ -138,7 +138,7 @@ export class AssignmentService {
     if (!assignment) throw new Error('NOT_FOUND: Assignment not found');
 
     await Result.findOneAndDelete({ assignmentId: id });
-    
+
     assignment.status = 'pending';
     await assignment.save();
 
@@ -155,7 +155,7 @@ export class AssignmentService {
       totalMarks: assignment.totalMarks,
       instructions: assignment.instructions,
     };
-    
+
     const job = await addAssessmentJob(assignment._id.toString(), payload as any);
 
     return {

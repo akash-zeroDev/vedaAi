@@ -45,13 +45,22 @@ export const useAssignmentLifecycle = () => {
   // Robust Polling Fallback (runs alongside WebSocket)
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
+    let retryCount = 0;
+    const MAX_RETRIES = 20;
 
     if (store.status === 'processing' && store.assignmentId) {
       intervalId = setInterval(async () => {
         try {
+          retryCount++;
+          if (retryCount >= MAX_RETRIES) {
+            store.setJobStatus('error', 'Technical error: The server took too long to respond. Please try again.');
+            clearInterval(intervalId);
+            return;
+          }
+
           const { apiFetch } = require('@/lib/api');
           const res = await apiFetch(`/api/assignments/${store.assignmentId}/result`);
-          
+
           if (res.ok) {
             const data = await res.json();
             if (data && data.content) {
@@ -80,7 +89,7 @@ export const useAssignmentLifecycle = () => {
   const submitAssignment = async () => {
     try {
       store.setJobStatus('queued');
-      
+
       const formData = new FormData();
       formData.append('title', store.title || "Untitled Assignment");
       formData.append('dueDate', store.dueDate || "Not specified");

@@ -23,7 +23,7 @@ export default function CreateAssignmentPage() {
   }
 
   return (
-    <div className="flex flex-col w-full h-full min-h-full bg-[#CECECE] md:bg-[#F9FAFB] pt-[96px] md:pt-[24px] px-[16px] md:px-[24px] pb-[120px] md:pb-[24px]">
+    <div className="relative z-10 flex flex-col w-full h-full max-w-5xl mx-auto">
       <UploadMaterialForm onSubmit={submitAssignment} />
     </div>
   );

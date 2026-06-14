@@ -1,17 +1,19 @@
 'use client';
 
 import React from 'react';
-import { LayoutGrid, Users, BookOpen, Wrench, Library, Plus } from 'lucide-react';
+import { LayoutGrid, Users, BookOpen, Wrench, Library, Plus, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAssessmentStore } from '@/store/useAssessmentStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
+import { useSession } from 'next-auth/react';
 
 const Sidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const store = useAssessmentStore();
   const { setIsNavigating } = useNavigationStore();
+  const { data: session } = useSession();
 
   const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
     if (pathname !== path) {
@@ -32,14 +34,14 @@ const Sidebar = () => {
       <div className="flex flex-col">
         <div className="px-[16px] py-[24px] flex items-center gap-[8px]">
           <div className="w-[40px] h-[40px] relative">
-            <img src="/vedaAi.svg" alt="VedaAI Logo" className="absolute w-[80px] h-[71px] max-w-none" style={{ left: '-19.71px', top: '-1.85px' }} />
+            <img src="/graphite.svg" alt="Graphite Logo" className="absolute w-[80px] h-[71px] max-w-none" style={{ left: '-19.71px', top: '-1.85px' }} />
           </div>
-          <span className="font-bold text-[22px] text-[#111827]">VedaAI</span>
+          <span className="font-bold text-[22px] text-[#111827]">Graphite</span>
         </div>
 
         <div className="px-[16px] mb-[24px]">
-          <Link 
-            href="/dashboard/create" 
+          <Link
+            href="/dashboard/create"
             onClick={(e) => {
               store.resetForm();
               handleNav(e, '/dashboard/create');
@@ -72,6 +74,13 @@ const Sidebar = () => {
             <img src="/library.svg" alt="My Library" className="w-[20px] h-[20px]" />
             <span className="text-[14px]">My Library</span>
           </Link>
+
+          <div className="my-2 border-t border-slate-100 mx-3"></div>
+
+          <Link href="/dashboard/upgrade" onClick={(e) => handleNav(e, '/dashboard/upgrade')} className={`flex items-center gap-[12px] px-[12px] py-[10px] rounded-[8px] transition-colors ${isActive('/dashboard/upgrade') ? 'bg-amber-50 text-amber-700 font-semibold' : 'text-[#4B5563] hover:bg-[#F3F4F6] hover:text-amber-600'}`}>
+            <Sparkles size={18} className={isActive('/dashboard/upgrade') ? 'text-amber-500' : ''} />
+            <span className="text-[14px]">Upgrade to Premium</span>
+          </Link>
         </nav>
       </div>
 
@@ -82,12 +91,13 @@ const Sidebar = () => {
         </Link>
         <div className="flex items-center justify-between p-[12px] rounded-[12px] border border-[#E5E7EB] hover:bg-[#F9FAFB] cursor-pointer transition-colors shadow-sm">
           <div className="flex items-center gap-[12px]">
-            <div className="w-[32px] h-[32px] rounded-full bg-[#E5E7EB] flex items-center justify-center overflow-hidden">
-              <img src="/avatar.jpg" alt="School Avatar" className="w-full h-full object-cover" />
+            <div className="w-[32px] h-[32px] rounded-full bg-[#E5E7EB] flex items-center justify-center overflow-hidden text-[#111827] font-bold text-[14px]">
+              {session?.user?.schoolName ? session.user.schoolName.charAt(0).toUpperCase() : 'S'}
             </div>
             <div className="flex flex-col">
-              <span className="text-[14px] font-semibold text-[#111827]">Delhi Public School</span>
-              <span className="text-[12px] text-[#6B7280]">Bokaro Steel City</span>
+              <span className="text-[14px] font-semibold text-[#111827] truncate max-w-[180px] uppercase tracking-wide" title={session?.user?.schoolName || 'School'}>
+                {session?.user?.schoolName || 'Loading...'}
+              </span>
             </div>
           </div>
         </div>

@@ -9,13 +9,13 @@ const MobileHeader = () => {
       <div className="flex items-center gap-[8px]">
         <div className="w-[36px] h-[36px] relative overflow-hidden rounded-[8px]">
           <img 
-            src="/vedaAi.svg" 
-            alt="VedaAI Logo" 
+            src="/graphite.svg" 
+            alt="Graphite Logo" 
             className="absolute w-[72px] h-[64px] max-w-none" 
             style={{ left: '-17.74px', top: '-1.66px' }} 
           />
         </div>
-        <span className="font-bold text-[18px] text-[#111827] tracking-tight">VedaAI</span>
+        <span className="font-bold text-[18px] text-[#111827] tracking-tight">Graphite</span>
       </div>
 
       {/* Right side: Actions */}
