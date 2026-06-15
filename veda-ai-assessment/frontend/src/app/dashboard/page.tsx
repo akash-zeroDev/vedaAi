@@ -18,6 +18,7 @@ import mongoose from 'mongoose';
 import Analysis from '@/lib/models/Analysis';
 import Rubric from '@/lib/models/Rubric';
 import Summary from '@/lib/models/Summary';
+import Assignment from '@/lib/models/Assignment';
 import type { IActivityLog, ToolName, ActivityStatus } from '@/lib/models/ActivityLog';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ interface DashboardStats {
   totalAnalyses: number;
   totalRubrics: number;
   totalSummaries: number;
+  totalAssignments: number;
   totalGenerations: number;
   totalTokensUsed: number;
 }
@@ -67,7 +69,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
   await connectToDatabase();
   const userObjId = new mongoose.Types.ObjectId(userId);
 
-  const [analysesStats, rubricsStats, summariesStats] = await Promise.all([
+  const [analysesStats, rubricsStats, summariesStats, assignmentsStats] = await Promise.all([
     Analysis.aggregate([
       { $match: { userId: userObjId } },
       { $group: { _id: null, count: { $sum: 1 }, tokens: { $sum: '$tokenUsage' } } }
@@ -79,12 +81,16 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
     Summary.aggregate([
       { $match: { userId: userObjId } },
       { $group: { _id: null, count: { $sum: 1 }, tokens: { $sum: '$tokenUsage' } } }
+    ]),
+    Assignment.aggregate([
+      { $group: { _id: null, count: { $sum: 1 } } }
     ])
   ]);
 
   const totalAnalyses = analysesStats[0]?.count || 0;
   const totalRubrics = rubricsStats[0]?.count || 0;
   const totalSummaries = summariesStats[0]?.count || 0;
+  const totalAssignments = assignmentsStats[0]?.count || 0;
   
   const totalTokensUsed = 
     (analysesStats[0]?.tokens || 0) + 
@@ -95,7 +101,8 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
     totalAnalyses,
     totalRubrics,
     totalSummaries,
-    totalGenerations: totalAnalyses + totalRubrics + totalSummaries,
+    totalAssignments,
+    totalGenerations: totalAnalyses + totalRubrics + totalSummaries + totalAssignments,
     totalTokensUsed,
   };
 }
@@ -111,7 +118,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
 async function fetchRecentActivity(userId: string): Promise<RecentItem[]> {
   await connectToDatabase();
 
-  const [analyses, rubrics, summaries] = await Promise.all([
+  const [analyses, rubrics, summaries, assignments] = await Promise.all([
     Analysis.find({ userId })
       .sort({ createdAt: -1 })
       .limit(10)
@@ -123,6 +130,11 @@ async function fetchRecentActivity(userId: string): Promise<RecentItem[]> {
       .select('title status createdAt')
       .lean(),
     Summary.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('title status createdAt')
+      .lean(),
+    Assignment.find()
       .sort({ createdAt: -1 })
       .limit(10)
       .select('title status createdAt')
@@ -153,6 +165,14 @@ async function fetchRecentActivity(userId: string): Promise<RecentItem[]> {
       status: (s as any).status as ActivityStatus,
       href: `/dashboard/toolkit/lesson-summary?id=${(s._id as any).toString()}`,
       createdAt: (s as any).createdAt,
+    })),
+    ...assignments.map((a) => ({
+      id: (a._id as any).toString(),
+      toolName: 'Assignment Generator' as ToolName,
+      assignmentTitle: (a as any).title || 'Untitled Assignment',
+      status: ((a as any).status || 'completed').toUpperCase() as ActivityStatus,
+      href: `/dashboard/output/${(a._id as any).toString()}`,
+      createdAt: (a as any).createdAt,
     })),
 
   ];
@@ -193,6 +213,7 @@ const TOOL_BADGE_STYLES: Record<ToolName, string> = {
   'Rubric Generator': 'bg-indigo-50 border-indigo-100 text-indigo-700',
   'Difficulty Analyzer': 'bg-amber-50 border-amber-100 text-amber-700',
   'Lesson Summarizer': 'bg-emerald-50 border-emerald-100 text-emerald-700',
+  'Assignment Generator': 'bg-blue-50 border-blue-100 text-blue-700',
 };
 
 // ─── Sub-components (inline, no separate file needed at this scale) ───────────
@@ -274,6 +295,13 @@ export default async function DashboardPage() {
       positive: false,
       icon: <BookOpenCheck size={14} className="text-slate-400" />,
     },
+    {
+      label: 'Assignments Created',
+      value: stats.totalAssignments,
+      trend: '+2 this week',
+      positive: true,
+      icon: <FileText size={14} className="text-slate-400" />,
+    },
   ];
 
   const quickLaunch = [
@@ -328,7 +356,7 @@ export default async function DashboardPage() {
         <div className="shrink-0 bg-white border border-slate-200 rounded-2xl px-5 py-4 flex flex-col gap-2 min-w-[200px]">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              Gemini Tokens
+              Tokens
             </span>
             <span className="text-xs font-mono font-semibold text-slate-800">
               {formatCompact(aiTokensUsed)}
@@ -349,7 +377,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {statCards.map((card) => (
           <div
             key={card.label}
@@ -447,7 +475,7 @@ export default async function DashboardPage() {
                       Tool
                     </th>
                     <th className="text-left py-3 px-5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                      Assignment
+                      Assignment title
                     </th>
                     <th className="text-left py-3 px-5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">
                       Status

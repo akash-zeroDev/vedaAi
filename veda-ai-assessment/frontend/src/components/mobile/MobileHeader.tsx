@@ -7,12 +7,11 @@ const MobileHeader = () => {
       
       {/* Left side: Logo */}
       <div className="flex items-center gap-[8px]">
-        <div className="w-[36px] h-[36px] relative overflow-hidden rounded-[8px]">
+        <div className="w-[32px] h-[32px] relative overflow-hidden bg-white flex items-center justify-center shrink-0 rounded-[8px]">
           <img 
-            src="/graphite.svg" 
+            src="/graphite_modern_logo.png" 
             alt="Graphite Logo" 
-            className="absolute w-[72px] h-[64px] max-w-none" 
-            style={{ left: '-17.74px', top: '-1.66px' }} 
+            className="w-[28px] h-[28px] object-contain drop-shadow-sm" 
           />
         </div>
         <span className="font-bold text-[18px] text-[#111827] tracking-tight">Graphite</span>

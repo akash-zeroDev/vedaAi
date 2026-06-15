@@ -81,10 +81,10 @@ export const assessmentWorker = new Worker(
       console.log(`[Worker] Calling Gemini LLM...`);
       const result = await model.generateContent(contents);
       const responseText = result.response.text();
+      const tokenUsage = result.response.usageMetadata?.totalTokenCount || 0;
 
       console.log(`[Worker] Parsing LLM response...`);
       const parsedContent = parseAIResponse(responseText);
-
 
       const newResult = new Result({
         assignmentId,
@@ -97,7 +97,7 @@ export const assessmentWorker = new Worker(
         await redisClient.set(`llm_cache:${job.data.llmHash}`, JSON.stringify(parsedContent), 'EX', 2592000); // 30 days
       }
 
-      await Assignment.findByIdAndUpdate(assignmentId, { status: 'completed' });
+      await Assignment.findByIdAndUpdate(assignmentId, { status: 'completed', tokenUsage });
 
       // Invalidate caches since the status changed and a result was created
       await redisClient.del('assignments:all');

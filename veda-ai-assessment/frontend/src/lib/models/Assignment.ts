@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 
 export interface IAssignment extends Document {
   title: string;
@@ -9,12 +9,14 @@ export interface IAssignment extends Document {
     data: string;
   };
   dueDate: string;
-  questionTypes: Array<string | { type: string; count: number; marks: number }>;
+  questionTypes: Array<any>;
   totalQuestions: number;
   totalMarks: number;
   instructions?: string;
   tokenUsage?: number;
   status: 'pending' | 'processing' | 'completed' | 'failed';
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const AssignmentSchema: Schema = new Schema({
@@ -38,4 +40,6 @@ const AssignmentSchema: Schema = new Schema({
   tokenUsage: { type: Number, default: 0 },
 }, { timestamps: true });
 
-export default mongoose.models.Assignment || mongoose.model<IAssignment>('Assignment', AssignmentSchema);
+const Assignment: Model<IAssignment> = mongoose.models.Assignment || mongoose.model<IAssignment>('Assignment', AssignmentSchema);
+
+export default Assignment;

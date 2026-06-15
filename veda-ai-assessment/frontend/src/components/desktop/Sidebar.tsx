@@ -32,11 +32,11 @@ const Sidebar = () => {
   return (
     <aside className="w-[304px] h-screen bg-white flex flex-col justify-between border-r border-[#E5E7EB] shadow-[0_32px_48px_rgba(0,0,0,0.20),0_16px_48px_rgba(0,0,0,0.12)] z-10 relative">
       <div className="flex flex-col">
-        <div className="px-[16px] py-[24px] flex items-center gap-[8px]">
-          <div className="w-[40px] h-[40px] relative">
-            <img src="/graphite.svg" alt="Graphite Logo" className="absolute w-[80px] h-[71px] max-w-none" style={{ left: '-19.71px', top: '-1.85px' }} />
+        <div className="px-[16px] py-[24px] flex items-center gap-[12px]">
+          <div className="w-[36px] h-[36px] relative rounded-[10px] overflow-hidden bg-white flex items-center justify-center shrink-0">
+            <img src="/graphite_modern_logo.png" alt="Graphite Logo" className="w-[32px] h-[32px] object-contain drop-shadow-sm" />
           </div>
-          <span className="font-bold text-[22px] text-[#111827]">Graphite</span>
+          <span className="font-bold text-[22px] text-[#111827] tracking-tight">Graphite</span>
         </div>
 
         <div className="px-[16px] mb-[24px]">

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type ToolName = 'Rubric Generator' | 'Difficulty Analyzer' | 'Lesson Summarizer';
+export type ToolName = 'Rubric Generator' | 'Difficulty Analyzer' | 'Lesson Summarizer' | 'Assignment Generator';
 export type ActivityStatus = 'COMPLETED' | 'PROCESSING' | 'FAILED';
 
 export interface IActivityLog extends Document {
@@ -17,7 +17,7 @@ const ActivityLogSchema = new Schema<IActivityLog>(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     toolName: {
       type: String,
-      enum: ['Rubric Generator', 'Difficulty Analyzer', 'Lesson Summarizer'],
+      enum: ['Rubric Generator', 'Difficulty Analyzer', 'Lesson Summarizer', 'Assignment Generator'],
       required: true,
     },
     assignmentTitle: { type: String, required: true },

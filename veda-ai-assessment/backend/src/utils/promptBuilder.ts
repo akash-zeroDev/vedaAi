@@ -34,8 +34,8 @@ USER CRITERIA:
 ${instructions ? `- Additional Instructions: ${instructions}` : ''}
 
 CRITICAL RULES:
-1. MATH/LATEX ESCAPING: If using math/physics formulas, use LaTeX. Because you are returning JSON, you MUST double-escape your backslashes. For example, output \\\\frac instead of \\frac, and \\\\text instead of \\text.
-2. MATH DELIMITERS: Wrap inline equations in single dollar signs (e.g., $5 \\\\text{ N}$) and block equations in double dollar signs (e.g., $$E = mc^2$$).
+1. MATH/LATEX ESCAPING: If using math/physics formulas, use LaTeX. Because we use native structured output, do NOT double-escape backslashes. Use a SINGLE backslash (e.g., \\frac, \\sqrt, \\eta). Write LaTeX exactly as it would appear in a .tex file.
+2. MATH DELIMITERS: Wrap inline equations in single dollar signs (e.g., $5 \\text{ N}$) and block equations in double dollar signs (e.g., $$E = mc^2$$).
 3. SECTIONS: Create exactly one section for each Question Type requested. Name them sequentially ("Section A", "Section B", etc.).
 4. OPTIONS: If the question type is NOT multiple choice (e.g., Short Answer, Fill in the Blanks), you MUST leave the "options" array empty [].
 
@@ -69,7 +69,8 @@ export const parseAIResponse = (text: string): AssessmentResult => {
     .trim();
 
   try {
-    return JSON.parse(cleanedText);
+    const parsed = JSON.parse(cleanedText);
+    return parsed;
   } catch (error: any) {
     console.error('Failed to parse AI response. Error:', error.message);
     throw new Error('Invalid JSON format from AI model');

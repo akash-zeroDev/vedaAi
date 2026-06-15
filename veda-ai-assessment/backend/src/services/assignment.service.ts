@@ -63,6 +63,7 @@ export class AssignmentService {
       llmHash,
     };
 
+    // Add to Redis job queue (BullMQ)
     const job = await addAssessmentJob(newAssignment._id.toString(), jobPayload);
 
     // Invalidate assignments list cache
