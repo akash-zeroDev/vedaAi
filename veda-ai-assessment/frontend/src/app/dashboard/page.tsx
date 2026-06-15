@@ -83,7 +83,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
       { $group: { _id: null, count: { $sum: 1 }, tokens: { $sum: '$tokenUsage' } } }
     ]),
     Assignment.aggregate([
-      { $group: { _id: null, count: { $sum: 1 } } }
+      { $group: { _id: null, count: { $sum: 1 }, tokens: { $sum: '$tokenUsage' } } }
     ])
   ]);
 
@@ -95,7 +95,8 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
   const totalTokensUsed = 
     (analysesStats[0]?.tokens || 0) + 
     (rubricsStats[0]?.tokens || 0) + 
-    (summariesStats[0]?.tokens || 0);
+    (summariesStats[0]?.tokens || 0) +
+    (assignmentsStats[0]?.tokens || 0);
 
   return {
     totalAnalyses,
