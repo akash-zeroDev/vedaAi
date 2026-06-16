@@ -83,6 +83,7 @@ async function fetchDashboardStats(userId: string): Promise<DashboardStats> {
       { $group: { _id: null, count: { $sum: 1 }, tokens: { $sum: '$tokenUsage' } } }
     ]),
     Assignment.aggregate([
+      { $match: { userId: userId } },
       { $group: { _id: null, count: { $sum: 1 }, tokens: { $sum: '$tokenUsage' } } }
     ])
   ]);
@@ -135,7 +136,7 @@ async function fetchRecentActivity(userId: string): Promise<RecentItem[]> {
       .limit(10)
       .select('title status createdAt')
       .lean(),
-    Assignment.find()
+    Assignment.find({ userId })
       .sort({ createdAt: -1 })
       .limit(10)
       .select('title status createdAt')

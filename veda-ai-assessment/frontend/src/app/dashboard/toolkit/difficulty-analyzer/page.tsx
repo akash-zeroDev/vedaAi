@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, Activity, BarChart2, CheckCircle2, AlertCircle, UploadCloud, Type, File as FileIcon, X, ArrowLeft } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -27,7 +27,7 @@ interface IAnalysis {
   analyzedQuestions?: IAnalyzedQuestion[];
 }
 
-export default function DifficultyAnalyzerPage() {
+function DifficultyAnalyzerPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const viewId = searchParams.get('id'); // set when navigating from dashboard history
@@ -482,5 +482,14 @@ export default function DifficultyAnalyzerPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function DifficultyAnalyzerPage() {
+  return (
+    <Suspense>
+      <DifficultyAnalyzerPageContent />
+    </Suspense>
   );
 }

@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { ISummary } from '@/lib/models/Summary';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
-export default function LessonSummaryPage() {
+function LessonSummaryPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const viewId = searchParams.get('id');
@@ -309,5 +309,14 @@ export default function LessonSummaryPage() {
         )}
       </div>
     </div>
+  );
+}
+
+
+export default function LessonSummaryPage() {
+  return (
+    <Suspense>
+      <LessonSummaryPageContent />
+    </Suspense>
   );
 }

@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, FileText, CheckCircle2, Sparkles, ChevronRight, Settings, ArrowLeft } from 'lucide-react';
 import { ICriteria, IRubric } from '@/lib/models/Rubric';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
-export default function RubricGeneratorPage() {
+function RubricGeneratorPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const viewId = searchParams.get('id');
@@ -322,5 +322,14 @@ export default function RubricGeneratorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function RubricGeneratorPage() {
+  return (
+    <Suspense>
+      <RubricGeneratorPageContent />
+    </Suspense>
   );
 }

@@ -26,7 +26,6 @@ const BottomNav = () => {
   const navItems = [
     { path: '/dashboard', label: 'Home', icon: '/mobile_home.svg' },
     { path: '/dashboard/assignments', label: 'Assignments', icon: '/mobile_assign.svg' },
-    { path: '/dashboard/library', label: 'Library', icon: '/mobile_library.svg' },
     { path: '/dashboard/toolkit', label: 'AI Toolkit', icon: '/mobile_aiToolkit.svg' },
   ];
 

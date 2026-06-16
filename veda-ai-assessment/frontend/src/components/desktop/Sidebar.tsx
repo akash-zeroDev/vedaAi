@@ -44,10 +44,7 @@ const Sidebar = () => {
             <img src="/home.svg" alt="Home" className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 ${isActive('/dashboard') ? 'opacity-100' : 'opacity-60'}`} />
             <span className="text-[14.5px]">Home</span>
           </Link>
-          <Link href="/dashboard/groups" onClick={(e) => handleNav(e, '/dashboard/groups')} className={`group flex items-center gap-[14px] px-[14px] py-[12px] rounded-xl transition-all duration-200 ${isActive('/dashboard/groups') ? 'bg-indigo-50/80 text-indigo-700 font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}>
-            <img src="/myGroup.svg" alt="My Groups" className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 ${isActive('/dashboard/groups') ? 'opacity-100' : 'opacity-60'}`} />
-            <span className="text-[14.5px]">My Groups</span>
-          </Link>
+
           <Link href="/dashboard/assignments" onClick={(e) => handleNav(e, '/dashboard/assignments')} className={`group flex items-center gap-[14px] px-[14px] py-[12px] rounded-xl transition-all duration-200 ${isActive('/dashboard/assignments') ? 'bg-indigo-50/80 text-indigo-700 font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}>
             <img src="/assignment.svg" alt="Assignments" className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 ${isActive('/dashboard/assignments') ? 'opacity-100' : 'opacity-60'}`} />
             <span className="text-[14.5px]">Assignments</span>
@@ -56,10 +53,7 @@ const Sidebar = () => {
             <img src="/aiToolkit.svg" alt="AI Teacher's Toolkit" className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 ${isActive('/dashboard/toolkit') ? 'opacity-100' : 'opacity-60'}`} />
             <span className="text-[14.5px]">AI Teacher&apos;s Toolkit</span>
           </Link>
-          <Link href="/dashboard/library" onClick={(e) => handleNav(e, '/dashboard/library')} className={`group flex items-center gap-[14px] px-[14px] py-[12px] rounded-xl transition-all duration-200 ${isActive('/dashboard/library') ? 'bg-indigo-50/80 text-indigo-700 font-bold shadow-sm' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}>
-            <img src="/library.svg" alt="My Library" className={`w-[20px] h-[20px] transition-transform duration-300 group-hover:scale-110 ${isActive('/dashboard/library') ? 'opacity-100' : 'opacity-60'}`} />
-            <span className="text-[14.5px]">My Library</span>
-          </Link>
+
 
           <div className="my-2 border-t border-slate-100 mx-3"></div>
 
