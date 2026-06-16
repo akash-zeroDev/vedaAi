@@ -8,7 +8,7 @@ export class AssignmentService {
   /**
    * Core logic for creating a new assignment and queueing the LLM job
    */
-  static async createAssignment(payload: any, fileData: any) {
+  static async createAssignment(payload: any, fileData: any, userId: string) {
     const hashData = {
       title: payload.title,
       questionTypes: payload.questionTypes,
@@ -27,6 +27,7 @@ export class AssignmentService {
 
       const newAssignment = new Assignment({
         ...payload,
+        userId,
         fileData,
         status: 'completed',
       });
@@ -39,7 +40,7 @@ export class AssignmentService {
       await newResult.save();
 
       // Invalidate list cache
-      await redisClient.del('assignments:all');
+      await redisClient.del(`assignments:user:${userId}`);
 
       return {
         message: 'Assignment created instantly from cache',
@@ -51,6 +52,7 @@ export class AssignmentService {
 
     const newAssignment = new Assignment({
       ...payload,
+      userId,
       fileData,
       status: 'pending',
     });
@@ -67,7 +69,7 @@ export class AssignmentService {
     const job = await addAssessmentJob(newAssignment._id.toString(), jobPayload);
 
     // Invalidate assignments list cache
-    await redisClient.del('assignments:all');
+    await redisClient.del(`assignments:user:${userId}`);
 
     return {
       message: 'Assignment created successfully',
@@ -80,15 +82,15 @@ export class AssignmentService {
   /**
    * Retrieve all assignments with caching
    */
-  static async getAllAssignments() {
-    const cacheKey = 'assignments:all';
+  static async getAllAssignments(userId: string) {
+    const cacheKey = `assignments:user:${userId}`;
     const cachedData = await redisClient.get(cacheKey);
 
     if (cachedData) {
       return JSON.parse(cachedData);
     }
 
-    const assignments = await Assignment.find().sort({ createdAt: -1 });
+    const assignments = await Assignment.find({ userId }).sort({ createdAt: -1 });
     await redisClient.set(cacheKey, JSON.stringify(assignments), 'EX', 3600);
     return assignments;
   }
@@ -124,11 +126,13 @@ export class AssignmentService {
    * Delete an assignment and clear its cache
    */
   static async deleteAssignment(id: string) {
-    await Assignment.findByIdAndDelete(id);
-    await Result.findOneAndDelete({ assignmentId: id });
-
-    await redisClient.del('assignments:all');
-    await redisClient.del(`assignment:result:${id}`);
+    const assignment = await Assignment.findById(id);
+    if (assignment) {
+      await Assignment.findByIdAndDelete(id);
+      await Result.findOneAndDelete({ assignmentId: id });
+      await redisClient.del(`assignments:user:${assignment.userId}`);
+      await redisClient.del(`assignment:result:${id}`);
+    }
   }
 
   /**
@@ -143,7 +147,7 @@ export class AssignmentService {
     assignment.status = 'pending';
     await assignment.save();
 
-    await redisClient.del('assignments:all');
+    await redisClient.del(`assignments:user:${assignment.userId}`);
     await redisClient.del(`assignment:result:${id}`);
 
     const payload = {

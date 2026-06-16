@@ -8,20 +8,23 @@ async function main() {
   await mongoose.connect(uri);
   const db = mongoose.connection.db;
   
-  if (!db) {
-    console.log("No DB");
-    return;
-  }
+  if (!db) return;
   
-  const analyses = await db.collection('analyses').find({}).limit(1).toArray();
-  const rubrics = await db.collection('rubrics').find({}).limit(1).toArray();
-  const summaries = await db.collection('summaries').find({}).limit(1).toArray();
-  const assignments = await db.collection('assignments').find({}).limit(1).toArray();
+  const analyses = await db.collection('analyses').find({}).toArray();
+  const rubrics = await db.collection('rubrics').find({}).toArray();
+  const summaries = await db.collection('summaries').find({}).toArray();
+  const assignments = await db.collection('assignments').find({}).toArray();
   
-  console.log('Analysis:', analyses[0]?.tokenUsage);
-  console.log('Rubric:', rubrics[0]?.tokenUsage);
-  console.log('Summary:', summaries[0]?.tokenUsage);
-  console.log('Assignment:', assignments[0]?.tokenUsage);
+  let tA = 0, tR = 0, tS = 0, tAssign = 0;
+  analyses.forEach(a => { tA += (a.tokenUsage || 0); if(a.tokenUsage) console.log('Found Analysis tokens:', a.tokenUsage); });
+  rubrics.forEach(r => { tR += (r.tokenUsage || 0); if(r.tokenUsage) console.log('Found Rubric tokens:', r.tokenUsage); });
+  summaries.forEach(s => { tS += (s.tokenUsage || 0); if(s.tokenUsage) console.log('Found Summary tokens:', s.tokenUsage); });
+  assignments.forEach(a => { tAssign += (a.tokenUsage || 0); if(a.tokenUsage) console.log('Found Assignment tokens:', a.tokenUsage); });
+  
+  console.log('Total Analysis:', tA);
+  console.log('Total Rubric:', tR);
+  console.log('Total Summary:', tS);
+  console.log('Total Assignment:', tAssign);
   
   process.exit(0);
 }

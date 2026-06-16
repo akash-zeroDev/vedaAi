@@ -9,6 +9,7 @@ import { Download, Loader2, RefreshCw } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAssignmentLifecycle } from '@/hooks/useAssignmentLifecycle';
+import { useSession } from 'next-auth/react';
 
 const OutputPage = () => {
   const params = useParams();
@@ -17,6 +18,8 @@ const OutputPage = () => {
   const [isLoading, setIsLoading] = useState(!(store.resultData && store.assignmentId === jobId));
   const [error, setError] = useState<string | null>(null);
   const [totalMarks, setTotalMarks] = useState<number>(store.totalMarks || 20);
+  const [assignmentTitle, setAssignmentTitle] = useState<string>(store.title || '');
+  const { data: session } = useSession();
 
   useAssignmentLifecycle();
 
@@ -65,10 +68,12 @@ const OutputPage = () => {
         }
         const data = await res.json();
         
-        if (data.assignment && data.assignment.totalMarks) {
-          setTotalMarks(data.assignment.totalMarks);
-        } else if (store.totalMarks) {
-          setTotalMarks(store.totalMarks);
+        if (data.assignment) {
+          if (data.assignment.totalMarks) setTotalMarks(data.assignment.totalMarks);
+          if (data.assignment.title) setAssignmentTitle(data.assignment.title);
+        } else {
+          if (store.totalMarks) setTotalMarks(store.totalMarks);
+          if (store.title) setAssignmentTitle(store.title);
         }
         
         useAssessmentStore.setState({ assignmentId: jobId });
@@ -129,7 +134,7 @@ const OutputPage = () => {
       {/* Action Card */}
       <div className="w-full max-w-[1060px] bg-white rounded-3xl border border-slate-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] px-[16px] lg:px-[32px] py-[16px] lg:py-[24px] print:hidden flex flex-col gap-[16px] lg:gap-[24px]">
         <p className="text-[13px] lg:text-[20px] font-semibold lg:font-bold leading-[20px] lg:leading-[28px] tracking-[-0.3px] lg:tracking-[-0.8px] text-slate-900 font-['Bricolage_Grotesque',sans-serif]">
-          Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
+          Certainly! Here is the customized Assessment Paper for your students:
         </p>
         <div className="flex flex-row flex-wrap lg:flex-nowrap gap-[10px] lg:gap-[16px]">
           <button 
@@ -153,7 +158,12 @@ const OutputPage = () => {
 
       {/* PDF Card */}
       <div className="w-full max-w-[1060px] bg-white rounded-[20px] md:rounded-[32px] px-[16px] md:px-[32px] py-[20px] md:py-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 print:shadow-none print:bg-transparent print:max-w-none print:m-0 print:p-0 print:rounded-none flex flex-col gap-[24px] md:gap-[32px]">
-        <StudentHeader totalMarks={totalMarks} />
+        <StudentHeader 
+          totalMarks={totalMarks} 
+          schoolName={session?.user?.schoolName || undefined}
+          className={(session?.user as any)?.className || undefined}
+          assignmentTitle={assignmentTitle}
+        />
         <AssessmentRenderer data={sections} />
       </div>
 

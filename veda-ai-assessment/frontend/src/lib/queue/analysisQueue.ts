@@ -4,7 +4,7 @@ import Analysis from '../models/Analysis';
 import { connectToDatabase } from '../mongoose';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 const { PDFParse } = require('pdf-parse');
-import { getGeminiModel } from '../gemini';
+import { generateAIContent } from '../llmRouter';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
@@ -33,9 +33,9 @@ const runGeminiAnalysis = async (rawText: string) => {
   Text to analyze:
   ${rawText.substring(0, 5000)}...`;
 
-  const classRes = await model.generateContent(classificationPrompt);
-  const classText = classRes.response.text().trim().toUpperCase();
-  const classTokens = classRes.response.usageMetadata?.totalTokenCount || 0;
+  const classRes = await generateAIContent(classificationPrompt);
+  const classText = classRes.text.trim().toUpperCase();
+  const classTokens = classRes.tokenUsage;
 
   if (classText.includes('NO')) {
     throw new Error('Invalid Document: This does not appear to be a question paper or assignment. Please upload a document containing questions.');
@@ -66,15 +66,16 @@ const runGeminiAnalysis = async (rawText: string) => {
   Text to analyze:
   ${rawText}`;
 
-
-  const analysisRes = await model.generateContent(analysisPrompt);
-  let jsonText = analysisRes.response.text().trim();
-  const analysisTokens = analysisRes.response.usageMetadata?.totalTokenCount || 0;
+  const analysisRes = await generateAIContent(analysisPrompt);
+  let jsonText = analysisRes.text.trim();
+  const analysisTokens = analysisRes.tokenUsage;
   
-  if (jsonText.startsWith('```json')) {
+  const firstBrace = jsonText.indexOf('[');
+  const lastBrace = jsonText.lastIndexOf(']');
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    jsonText = jsonText.substring(firstBrace, lastBrace + 1);
+  } else {
     jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
-  } else if (jsonText.startsWith('```')) {
-    jsonText = jsonText.replace(/```/g, '').trim();
   }
 
   try {

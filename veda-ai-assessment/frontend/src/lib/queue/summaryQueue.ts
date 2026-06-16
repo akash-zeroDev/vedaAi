@@ -4,7 +4,7 @@ import Summary from '../models/Summary';
 import { connectToDatabase } from '../mongoose';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 const { PDFParse } = require('pdf-parse');
-import { getGeminiModel } from '../gemini';
+import { generateAIContent } from '../llmRouter';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
@@ -23,8 +23,6 @@ const s3Client = new S3Client({
 });
 
 const runGeminiSummaryGeneration = async (rawText: string) => {
-  const model = getGeminiModel();
-
   const prompt = `You are an expert educator. Create a comprehensive, well-structured lesson summary for the following text.
   
   The output MUST be in Markdown format and include exactly the following sections:
@@ -41,10 +39,10 @@ const runGeminiSummaryGeneration = async (rawText: string) => {
   ${rawText}
   `;
 
-  const response = await model.generateContent(prompt);
+  const response = await generateAIContent(prompt);
   return {
-    generatedMarkdown: response.response.text().trim(),
-    tokenUsage: response.response.usageMetadata?.totalTokenCount || 0,
+    generatedMarkdown: response.text.trim(),
+    tokenUsage: response.tokenUsage,
   };
 };
 

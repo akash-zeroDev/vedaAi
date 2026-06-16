@@ -52,7 +52,7 @@ export default function UpgradePage() {
             
             if (verifyData.success) {
               setPaymentStatus('SUCCESS');
-              setPaymentMessage('Payment successful! Thank you for your incredible support.');
+              setPaymentMessage('Premium tier is coming soon. Thank you for your support!');
             } else {
               setPaymentStatus('FAILED');
               setPaymentMessage('Payment verification failed. Please contact support.');
@@ -171,43 +171,60 @@ export default function UpgradePage() {
               <li className="flex items-center gap-3"><FileText size={16} className="text-slate-900" /> Advanced PDF Extraction & OCR</li>
               <li className="flex items-center gap-3"><ShieldCheck size={16} className="text-slate-900" /> Priority Developer Support</li>
             </ul>
-            <div className="mb-4">
-              <label htmlFor="donationAmount" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Custom Amount</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium text-lg">₹</span>
-                <input
-                  type="number"
-                  id="donationAmount"
-                  min="1"
-                  step="50"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
-                  className="w-full pl-9 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all text-lg shadow-sm"
-                  placeholder="500"
-                />
-              </div>
+            <div className="mt-8">
+              <button
+                disabled
+                className="w-full py-3.5 px-4 bg-slate-200 text-slate-400 font-semibold rounded-xl cursor-not-allowed shadow-inner"
+              >
+                Available Soon
+              </button>
             </div>
-            
-            <button
-              onClick={handlePayment}
-              disabled={isProcessing || customAmount < 1}
-              className="group flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-            >
-              {isProcessing ? (
-                <Loader2 size={16} className="animate-spin text-slate-400" />
-              ) : (
-                <Heart size={16} className="text-rose-400 group-hover:scale-110 transition-transform" />
-              )}
-              {isProcessing ? 'Processing...' : `Support the Project (Donate ₹${customAmount || 1})`}
-            </button>
-            <p className="text-center text-[11px] text-slate-400 mt-3">
-              Donations directly fund our AWS and LLM infrastructure.
-            </p>
-            <p className="text-[11px] text-slate-400 mt-2 text-center">
-              Supports UPI (GPay, PhonePe, Paytm) & Indian Debit/Credit Cards
-            </p>
           </div>
         </div>
+      </div>
+
+      {/* ── Support & Donation Section ── */}
+      <div className="mt-8 bg-white border border-slate-200 rounded-3xl p-8 max-w-2xl mx-auto text-center shadow-sm">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-rose-50 text-rose-500 rounded-full mb-4">
+          <Heart size={24} />
+        </div>
+        <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Support the Project</h3>
+        <p className="text-slate-500 mb-6 text-sm">
+          Donations directly fund our AWS and LLM infrastructure. Help us unlock the high-speed production servers and launch the Premium tier faster.
+        </p>
+
+        <div className="max-w-xs mx-auto mb-4 text-left">
+          <label htmlFor="donationAmount" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Custom Amount</label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium text-lg">₹</span>
+            <input
+              type="number"
+              id="donationAmount"
+              min="10"
+              step="50"
+              value={customAmount}
+              onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
+              className="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all text-lg shadow-sm"
+              placeholder="500"
+            />
+          </div>
+        </div>
+        
+        <button
+          onClick={handlePayment}
+          disabled={isProcessing || customAmount < 10}
+          className="group flex items-center justify-center gap-2 max-w-xs w-full mx-auto py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+        >
+          {isProcessing ? (
+            <Loader2 size={16} className="animate-spin text-slate-400" />
+          ) : (
+            <Heart size={16} className="text-rose-400 group-hover:scale-110 transition-transform" />
+          )}
+          {isProcessing ? 'Processing...' : `Donate ₹${customAmount || 10}`}
+        </button>
+        <p className="text-[11px] text-slate-400 mt-4">
+          Supports UPI (GPay, PhonePe, Paytm) & Indian Debit/Credit Cards
+        </p>
       </div>
 
       {/* ── FAQ Section ── */}

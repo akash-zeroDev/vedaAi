@@ -22,6 +22,12 @@ export const createAssignment = async (req: Request, res: Response): Promise<voi
     }
 
     const payload = parseResult.data;
+    const userId = req.headers['x-user-id'] as string;
+    
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized: Missing x-user-id header' });
+      return;
+    }
 
     let fileData = null;
     if (req.file) {
@@ -39,7 +45,7 @@ export const createAssignment = async (req: Request, res: Response): Promise<voi
       }
     }
 
-    const result = await AssignmentService.createAssignment(payload, fileData);
+    const result = await AssignmentService.createAssignment(payload, fileData, userId);
 
     res.status(201).json(result);
   } catch (error) {
@@ -50,7 +56,12 @@ export const createAssignment = async (req: Request, res: Response): Promise<voi
 
 export const getAssignments = async (req: Request, res: Response): Promise<void> => {
   try {
-    const assignments = await AssignmentService.getAllAssignments();
+    const userId = req.headers['x-user-id'] as string;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized: Missing x-user-id header' });
+      return;
+    }
+    const assignments = await AssignmentService.getAllAssignments(userId);
     res.status(200).json(assignments);
   } catch (error) {
     console.error('Error fetching assignments:', error);

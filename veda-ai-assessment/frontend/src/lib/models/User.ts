@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   password?: string | null;
   schoolName?: string | null;
+  className?: string | null;
   isOnboarded: boolean;
 }
 
@@ -14,6 +15,7 @@ const UserSchema: Schema<IUser> = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, default: null },
     schoolName: { type: String, default: null },
+    className: { type: String, default: null },
     isOnboarded: { type: Boolean, default: false },
   },
   { timestamps: true }

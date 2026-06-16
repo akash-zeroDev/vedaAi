@@ -38,6 +38,11 @@ CRITICAL RULES:
 2. MATH DELIMITERS: Wrap inline equations in single dollar signs (e.g., $5 \\text{ N}$) and block equations in double dollar signs (e.g., $$E = mc^2$$).
 3. SECTIONS: Create exactly one section for each Question Type requested. Name them sequentially ("Section A", "Section B", etc.).
 4. OPTIONS: If the question type is NOT multiple choice (e.g., Short Answer, Fill in the Blanks), you MUST leave the "options" array empty [].
+5. UNITS: NEVER use \\text{} (or any \\text-based unit annotation) inside $...$ or $$...$$ for units. Units must always be written as plain prose text immediately after the math expression closes. 
+   WRONG: "$a = 2\\text{cm}$"
+   CORRECT: "$a = 2$ cm"
+   WRONG: "$f = 16\\text{GHz}$"
+   CORRECT: "$f = 16$ GHz"
 
 You MUST return ONLY a valid JSON object matching this EXACT schema. Do not include markdown formatting fences.
 
@@ -69,7 +74,14 @@ export const parseAIResponse = (text: string): AssessmentResult => {
     .trim();
 
   try {
-    const parsed = JSON.parse(cleanedText);
+    let jsonString = cleanedText;
+    console.log("[Worker] Llama 3 Raw Output:", jsonString);
+    const firstBrace = jsonString.indexOf('{');
+    const lastBrace = jsonString.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+    }
+    const parsed = JSON.parse(jsonString);
     return parsed;
   } catch (error: any) {
     console.error('Failed to parse AI response. Error:', error.message);

@@ -1,28 +1,23 @@
 import { Worker, Job } from 'bullmq';
 import redisClient from '../config/redis';
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { SchemaType } from '@google/generative-ai';
 import { buildStructuredPrompt, parseAIResponse } from '../utils/promptBuilder';
 import Assignment from '../models/Assignment';
 import Result from '../models/Result';
 import { io } from '../server';
+import { generateAIContent } from '../utils/llmRouter';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
-const model = genAI.getGenerativeModel({ 
-  model: 'gemini-3.5-flash',
-  generationConfig: {
-    responseMimeType: 'application/json',
-    responseSchema: {
-      type: SchemaType.OBJECT,
-      properties: {
-        sections: {
-          type: SchemaType.ARRAY,
-          items: {
-            type: SchemaType.OBJECT,
-            properties: {
-              sectionTitle: { type: SchemaType.STRING },
-              instructions: { type: SchemaType.STRING },
-              questions: {
+const assignmentSchema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    sections: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          sectionTitle: { type: SchemaType.STRING },
+          instructions: { type: SchemaType.STRING },
+          questions: {
                 type: SchemaType.ARRAY,
                 items: {
                   type: SchemaType.OBJECT,
@@ -44,9 +39,7 @@ const model = genAI.getGenerativeModel({
         }
       },
       required: ["sections"]
-    }
-  }
-});
+};
 
 export const assessmentWorker = new Worker(
   'assessment-generation',
@@ -78,10 +71,8 @@ export const assessmentWorker = new Worker(
         }
       }
 
-      console.log(`[Worker] Calling Gemini LLM...`);
-      const result = await model.generateContent(contents);
-      const responseText = result.response.text();
-      const tokenUsage = result.response.usageMetadata?.totalTokenCount || 0;
+      console.log(`[Worker] Calling LLM Router...`);
+      const { text: responseText, tokenUsage } = await generateAIContent(contents, assignmentSchema);
 
       console.log(`[Worker] Parsing LLM response...`);
       const parsedContent = parseAIResponse(responseText);

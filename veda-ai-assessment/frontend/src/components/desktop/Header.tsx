@@ -9,9 +9,26 @@ import Link from 'next/link';
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    schoolName: '',
+    className: ''
+  });
+
+  useEffect(() => {
+    if (session?.user) {
+      setFormData({
+        name: session.user.name || '',
+        schoolName: session.user.schoolName || '',
+        className: (session.user as any).className || ''
+      });
+    }
+  }, [session]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -35,7 +52,30 @@ const Header = () => {
   const showBackButton = !isTopLevelTab;
   
   const userName = session?.user?.name || 'Loading...';
-  const userImage = (session?.user as any)?.image;
+  const userEmail = session?.user?.email || '';
+
+  const handleSaveProfile = async () => {
+    try {
+      setIsSaving(true);
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        await update({ 
+          name: formData.name, 
+          schoolName: formData.schoolName, 
+          className: formData.className 
+        });
+        setIsDropdownOpen(false);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <header className="w-full h-[72px] bg-white flex flex-row items-center justify-between px-[24px] border-b border-[#E5E7EB]">
@@ -61,10 +101,8 @@ const Header = () => {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-[8px] py-[6px] px-[12px] rounded-[100px] hover:bg-[#F3F4F6] transition-colors shadow-[0_32px_48px_rgba(0,0,0,0.20),0_16px_48px_rgba(0,0,0,0.12)] bg-white border border-[#E5E7EB]"
           >
-            <div className="w-[32px] h-[32px] rounded-[100px] bg-[#E5E7EB] flex items-center justify-center overflow-hidden text-[#111827] font-semibold text-sm">
-              {userImage ? (
-                <img src={userImage} alt={userName} className="w-full h-full object-cover" />
-              ) : session?.user?.name ? (
+            <div className="w-[32px] h-[32px] rounded-[100px] bg-indigo-100 flex items-center justify-center overflow-hidden text-indigo-700 font-bold text-[16px]">
+              {session?.user?.name ? (
                 session.user.name[0].toUpperCase()
               ) : (
                 <UserIcon size={16} />
@@ -75,25 +113,74 @@ const Header = () => {
           </button>
           
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-50 overflow-hidden py-1">
-              <Link 
-                href="/dashboard/settings" 
-                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-[#374151] hover:bg-[#F9FAFB] transition-colors"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                <UserIcon size={16} />
-                Profile
-              </Link>
-              <button 
-                onClick={() => {
-                  setIsDropdownOpen(false);
-                  signOut({ callbackUrl: '/auth' });
-                }}
-                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
-              >
-                <LogOut size={16} />
-                Log out
-              </button>
+            <div className="absolute right-0 mt-2 w-[300px] bg-white border border-[#E5E7EB] rounded-2xl shadow-xl z-50 overflow-hidden py-3 px-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-1 border-b border-gray-100 pb-3 mb-1">
+                <span className="text-[16px] font-bold text-slate-900">Profile Settings</span>
+                <span className="text-[12px] text-slate-500">Update your account details.</span>
+              </div>
+              
+              <div className="flex flex-col gap-1">
+                <label className="text-[12px] font-semibold text-slate-700 ml-1">Email</label>
+                <input 
+                  type="email" 
+                  value={userEmail} 
+                  disabled 
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-500 text-[13px] rounded-lg px-3 py-2 cursor-not-allowed outline-none"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[12px] font-semibold text-slate-700 ml-1">Full Name</label>
+                <input 
+                  type="text" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full bg-white border border-slate-200 text-slate-900 text-[13px] rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[12px] font-semibold text-slate-700 ml-1">School Name</label>
+                <input 
+                  type="text" 
+                  value={formData.schoolName}
+                  onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
+                  className="w-full bg-white border border-slate-200 text-slate-900 text-[13px] rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  placeholder="e.g. DPS Bokaro"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[12px] font-semibold text-slate-700 ml-1">Class / Grade</label>
+                <input 
+                  type="text" 
+                  value={formData.className}
+                  onChange={(e) => setFormData({ ...formData, className: e.target.value })}
+                  className="w-full bg-white border border-slate-200 text-slate-900 text-[13px] rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  placeholder="e.g. 5th, 8th"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 mt-2">
+                <button 
+                  onClick={handleSaveProfile}
+                  disabled={isSaving || !formData.name}
+                  className="w-full bg-indigo-600 text-white text-[13px] font-semibold py-2.5 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isSaving ? 'Saving...' : 'Save Profile'}
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    signOut({ callbackUrl: '/auth' });
+                  }}
+                  className="w-full bg-red-50 text-red-600 text-[13px] font-semibold py-2.5 rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Log out
+                </button>
+              </div>
             </div>
           )}
         </div>

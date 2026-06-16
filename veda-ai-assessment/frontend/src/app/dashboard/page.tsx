@@ -338,13 +338,13 @@ export default async function DashboardPage() {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-widest mb-1">
+          <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1 drop-shadow-sm">
             {formatDate()}
           </p>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-indigo-800 to-violet-900 pb-1">
             {getGreeting()}, {firstName}
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm font-medium text-slate-500 mt-1">
             Here&apos;s your workspace at{' '}
             <span className="font-medium text-slate-700 capitalize">
               {session.user.schoolName ?? 'your school'}
@@ -354,7 +354,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Usage Quota */}
-        <div className="shrink-0 bg-white border border-slate-200 rounded-2xl px-5 py-4 flex flex-col gap-2 min-w-[200px]">
+        <div className="shrink-0 bg-white/60 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 rounded-3xl px-6 py-5 flex flex-col gap-2 min-w-[220px]">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               Tokens
@@ -367,7 +367,7 @@ export default async function DashboardPage() {
           {/* Progress track */}
           <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#0B132B] rounded-full transition-all duration-700"
+              className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${Math.max(quotaPct, 1)}%` }}
             />
           </div>
@@ -382,13 +382,15 @@ export default async function DashboardPage() {
         {statCards.map((card) => (
           <div
             key={card.label}
-            className="bg-white border border-slate-200 rounded-2xl px-5 py-5 flex flex-col gap-3"
+            className="group bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl px-6 py-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1 flex flex-col gap-3"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider leading-none">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider leading-snug group-hover:text-indigo-600 transition-colors">
                 {card.label}
               </span>
-              {card.icon}
+              <div className="p-1.5 shrink-0 rounded-xl bg-white/80 shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                {card.icon}
+              </div>
             </div>
             <span className="text-3xl font-bold text-slate-900 tracking-tight tabular-nums">
               {card.value}
@@ -411,8 +413,8 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Quick Launch Bento ── */}
-      <div>
-        <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">
+      <div className="mt-4">
+        <h2 className="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-4 ml-1">
           Quick Launch
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -420,7 +422,7 @@ export default async function DashboardPage() {
             <Link
               key={tool.id}
               href={tool.href}
-              className="group relative bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-4 hover:border-slate-300 hover:shadow-sm transition-all duration-200 overflow-hidden"
+              className="group relative bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl p-6 flex flex-col gap-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-white/90 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
             >
               {/* Hover arrow top-right */}
               <ArrowUpRight
@@ -447,9 +449,9 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Recent Activity Ledger ── */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-4 ml-1">
+          <h2 className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">
             Recent Activity
           </h2>
           <Link
@@ -460,7 +462,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           {recentActivity.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
               <Zap size={28} strokeWidth={1.5} />
@@ -471,27 +473,27 @@ export default async function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70">
-                    <th className="text-left py-3 px-5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                  <tr className="border-b border-white/50 bg-white/40">
+                    <th className="text-left py-4 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                       Tool
                     </th>
-                    <th className="text-left py-3 px-5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <th className="text-left py-4 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                       Assignment title
                     </th>
-                    <th className="text-left py-3 px-5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                    <th className="text-left py-4 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                       Status
                     </th>
-                    <th className="text-left py-3 px-5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                    <th className="text-left py-4 px-6 text-[10px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                       When
                     </th>
-                    <th className="py-3 px-5" />
+                    <th className="py-4 px-6" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-white/40">
                   {recentActivity.map((item) => (
                     <tr
                       key={item.id}
-                      className="group hover:bg-slate-50/60 transition-colors duration-100"
+                      className="group hover:bg-white/60 transition-colors duration-200"
                     >
                       {/* Tool badge */}
                       <td className="py-3.5 px-5 whitespace-nowrap align-middle">

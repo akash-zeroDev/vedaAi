@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAssignment extends Document {
+  userId: string;
   title: string;
   fileUrl?: string;
   fileData?: {
@@ -18,6 +19,7 @@ export interface IAssignment extends Document {
 }
 
 const AssignmentSchema: Schema = new Schema({
+  userId: { type: String, required: true },
   title: { type: String, required: true },
   fileUrl: { type: String },
   fileData: {

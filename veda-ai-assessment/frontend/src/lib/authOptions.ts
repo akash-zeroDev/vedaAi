@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
           image: profile.picture,
           isOnboarded: false,
           schoolName: null,
+          className: null,
         };
       }
     }),
@@ -42,6 +43,7 @@ export const authOptions: NextAuthOptions = {
           image: profile.avatar_url,
           isOnboarded: false,
           schoolName: null,
+          className: null,
         };
       }
     }),
@@ -75,6 +77,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           isOnboarded: user.isOnboarded,
           schoolName: user.schoolName,
+          className: user.className,
         };
       }
     })
@@ -88,15 +91,18 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
            token.isOnboarded = dbUser.isOnboarded;
            token.schoolName = dbUser.schoolName;
+           token.className = dbUser.className;
         } else {
            token.isOnboarded = (user as any).isOnboarded || false;
            token.schoolName = (user as any).schoolName || null;
+           token.className = (user as any).className || null;
         }
       }
       
       if (trigger === 'update' && session) {
         token.isOnboarded = session.isOnboarded;
         token.schoolName = session.schoolName;
+        token.className = session.className;
       }
       return token;
     },
@@ -105,6 +111,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.isOnboarded = token.isOnboarded as boolean;
         session.user.schoolName = token.schoolName as string | null;
+        session.user.className = token.className as string | null;
       }
       return session;
     }

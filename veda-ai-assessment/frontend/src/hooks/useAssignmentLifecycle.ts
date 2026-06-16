@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useAssessmentStore } from '@/store/useAssessmentStore';
 import { useSocketStore } from '@/store/useSocketStore';
 import type { AssessmentResult } from '@/store/useAssessmentStore';
@@ -13,6 +14,8 @@ interface WebSocketPayload {
 
 export const useAssignmentLifecycle = () => {
   const router = useRouter();
+  const params = useParams();
+  const { data: session } = useSession();
   const store = useAssessmentStore();
   const { socket, connect } = useSocketStore();
 
@@ -105,6 +108,9 @@ export const useAssignmentLifecycle = () => {
       const { apiFetch } = require('@/lib/api');
       const response = await apiFetch('/api/assignments', {
         method: 'POST',
+        headers: {
+          'x-user-id': session?.user?.id || ''
+        },
         body: formData,
       });
 

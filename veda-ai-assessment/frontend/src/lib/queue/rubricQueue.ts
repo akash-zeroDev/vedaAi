@@ -2,7 +2,7 @@ import { Queue, Worker, Job } from 'bullmq';
 import Redis from 'ioredis';
 import Rubric from '../models/Rubric';
 import { connectToDatabase } from '../mongoose';
-import { getGeminiModel } from '../gemini';
+import { generateAIContent } from '../llmRouter';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
@@ -13,8 +13,6 @@ const connection = new Redis(REDIS_URL, {
 export const rubricQueue = new Queue('rubric-generation', { connection });
 
 const runGeminiRubricGeneration = async (assignmentDescription: string) => {
-  const model = getGeminiModel();
-
   const prompt = `You are an expert educator. Create a comprehensive grading rubric for the following assignment.
   The rubric should evaluate multiple aspects of the assignment based on its specific requirements.
   
@@ -39,14 +37,16 @@ const runGeminiRubricGeneration = async (assignmentDescription: string) => {
   2. Each category MUST have at least 3 levels (e.g., Excellent, Average, Poor) with corresponding descending scores.
   3. Do not include markdown formatting like \`\`\`json. Just return the raw JSON array.`;
 
-  const response = await model.generateContent(prompt);
-  let jsonText = response.response.text().trim();
-  const tokenUsage = response.response.usageMetadata?.totalTokenCount || 0;
+  const response = await generateAIContent(prompt);
+  let jsonText = response.text.trim();
+  const tokenUsage = response.tokenUsage;
   
-  if (jsonText.startsWith('\`\`\`json')) {
-    jsonText = jsonText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-  } else if (jsonText.startsWith('\`\`\`')) {
-    jsonText = jsonText.replace(/\`\`\`/g, '').trim();
+  const firstBracket = jsonText.indexOf('[');
+  const lastBracket = jsonText.lastIndexOf(']');
+  if (firstBracket !== -1 && lastBracket !== -1) {
+    jsonText = jsonText.substring(firstBracket, lastBracket + 1);
+  } else {
+    jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
   }
 
   try {

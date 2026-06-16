@@ -12,5 +12,16 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${API_URL}${formattedEndpoint}`;
   
-  return fetch(url, options);
+  // Prevent aggressive browser/Next.js caching across user sessions
+  const fetchOptions: RequestInit = {
+    ...options,
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      ...options.headers,
+    }
+  };
+
+  return fetch(url, fetchOptions);
 }

@@ -8,6 +8,7 @@ import { Assignment } from '@/components/desktop/AssignmentCard';
 import { Loader2, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAssessmentStore } from '@/store/useAssessmentStore';
+import { useSession } from 'next-auth/react';
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,13 +18,19 @@ export default function DashboardPage() {
   const [isNavigatingToCreate, setIsNavigatingToCreate] = useState(false);
   const router = useRouter();
   const store = useAssessmentStore();
+  const { data: session } = useSession();
 
   useEffect(() => {
     store.resetForm();
     const fetchAssignments = async () => {
       try {
+        if (!session?.user?.id) return;
         const { apiFetch } = require('@/lib/api');
-        const res = await apiFetch('/api/assignments');
+        const res = await apiFetch('/api/assignments', {
+          headers: {
+            'x-user-id': session.user.id
+          }
+        });
         if (!res.ok) throw new Error('Failed to fetch assignments');
         const data = await res.json();
 
@@ -49,8 +56,10 @@ export default function DashboardPage() {
       }
     };
 
-    fetchAssignments();
-  }, []);
+    if (session?.user?.id) {
+      fetchAssignments();
+    }
+  }, [session]);
 
   const handleDelete = (id: string) => {
     setAssignments((prev) => prev.filter((a) => a.id !== id));
