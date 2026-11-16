@@ -126,6 +126,7 @@ export const assessmentWorker = new Worker(
   },
   {
     connection: redisClient,
+     concurrency: 2,
   }
 );
 
