@@ -7,6 +7,7 @@ import type { AssessmentResult } from '@/store/useAssessmentStore';
 
 interface WebSocketPayload {
   assignmentId: string;
+  generationId?: string;
   status: 'completed' | 'failed' | 'processing' | 'queued';
   data?: AssessmentResult;
   error?: string;
@@ -28,6 +29,7 @@ export const useAssignmentLifecycle = () => {
 
     const handleUpdate = (payload: WebSocketPayload) => {
       if (payload.assignmentId === store.assignmentId) {
+        if ((payload.generationId ?? null) !== (store.generationId ?? null)) return;
         if (payload.status === 'completed' && payload.data) {
           store.setResultData(payload.data);
           store.setJobStatus('success');
@@ -43,30 +45,28 @@ export const useAssignmentLifecycle = () => {
     return () => {
       socket.off('assignment:updated', handleUpdate);
     };
-  }, [socket, store.assignmentId, router, store]);
+  }, [socket, store.assignmentId, store.generationId, router, store]);
 
-  // Robust Polling Fallback (runs alongside WebSocket)
+  // Poll until a durable outcome. A provider retry can legitimately exceed a
+  // minute; elapsed client time must not be presented as terminal job failure.
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-    let retryCount = 0;
-    const MAX_RETRIES = 20;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+    const controller = new AbortController();
 
     if (store.status === 'processing' && store.assignmentId) {
-      intervalId = setInterval(async () => {
+      const poll = async () => {
+        let terminal = false;
         try {
-          retryCount++;
-          if (retryCount >= MAX_RETRIES) {
-            store.setJobStatus('error', 'Technical error: The server took too long to respond. Please try again.');
-            clearInterval(intervalId);
-            return;
-          }
-
           const { apiFetch } = require('@/lib/api');
-          const res = await apiFetch(`/api/assignments/${store.assignmentId}/result`);
+          const res = await apiFetch(`/api/assignments/${store.assignmentId}/result`, {
+            signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
+          });
 
           if (res.ok) {
             const data = await res.json();
-            if (data && data.content) {
+            if (!cancelled && data && data.content) {
+              terminal = true;
               store.setResultData(data.content);
               store.setJobStatus('success');
               router.push('/dashboard/output/' + store.assignmentId);
@@ -74,24 +74,32 @@ export const useAssignmentLifecycle = () => {
           } else if (res.status === 400) {
             // Check for failed generation
             const err = await res.json().catch(() => ({}));
-            if (err.error && err.error.includes('failed')) {
+            if (!cancelled && err.error && err.error.includes('failed')) {
+              terminal = true;
               store.setJobStatus('error', err.error);
             }
           }
         } catch (error) {
-          console.error('Polling error:', error);
+          // A failed poll is not evidence that the background job failed.
+          if (!cancelled) console.warn('Assignment status temporarily unavailable');
+        } finally {
+          if (!cancelled && !terminal) timer = setTimeout(poll, 3000);
         }
-      }, 3000);
+      };
+      timer = setTimeout(poll, 3000);
     }
 
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      cancelled = true;
+      controller.abort();
+      clearTimeout(timer);
     };
   }, [store.status, store.assignmentId, router, store]);
 
   const submitAssignment = async () => {
     try {
       store.setJobStatus('queued');
+      useAssessmentStore.setState({ generationId: null });
 
       const formData = new FormData();
       formData.append('title', store.title || "Untitled Assignment");
@@ -117,7 +125,7 @@ export const useAssignmentLifecycle = () => {
       if (response.status === 202 || response.ok) {
         const data = await response.json();
         const id = data.assignmentId || data.jobId || data.id;
-        useAssessmentStore.setState({ assignmentId: id, status: 'processing', errorMessage: null });
+        useAssessmentStore.setState({ assignmentId: id, generationId: data.generationId ?? null, status: 'processing', errorMessage: null });
       } else {
         const errorData = await response.json().catch(() => ({}));
         store.setJobStatus('error', errorData.error || errorData.message || 'Failed to submit assignment.');

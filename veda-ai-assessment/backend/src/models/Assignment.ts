@@ -15,6 +15,7 @@ export interface IAssignment extends Document {
   totalMarks: number;
   instructions?: string;
   tokenUsage?: number;
+  generationId?: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
@@ -38,6 +39,8 @@ const AssignmentSchema: Schema = new Schema({
     default: 'pending',
   },
   tokenUsage: { type: Number, default: 0 },
+  generationId: { type: String },
 }, { timestamps: true });
 
+AssignmentSchema.index({ userId: 1, createdAt: -1 });
 export default mongoose.models.Assignment || mongoose.model<IAssignment>('Assignment', AssignmentSchema);

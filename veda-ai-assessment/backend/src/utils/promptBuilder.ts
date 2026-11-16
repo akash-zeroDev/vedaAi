@@ -75,7 +75,6 @@ export const parseAIResponse = (text: string): AssessmentResult => {
 
   try {
     let jsonString = cleanedText;
-    console.log("[Worker] Llama 3 Raw Output:", jsonString);
     const firstBrace = jsonString.indexOf('{');
     const lastBrace = jsonString.lastIndexOf('}');
     if (firstBrace !== -1 && lastBrace !== -1) {
@@ -83,8 +82,7 @@ export const parseAIResponse = (text: string): AssessmentResult => {
     }
     const parsed = JSON.parse(jsonString);
     return parsed;
-  } catch (error: any) {
-    console.error('Failed to parse AI response. Error:', error.message);
-    throw new Error('Invalid JSON format from AI model');
+  } catch {
+    throw new SyntaxError('Invalid JSON format from AI model');
   }
 };

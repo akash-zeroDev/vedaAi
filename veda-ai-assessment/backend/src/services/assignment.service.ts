@@ -3,12 +3,14 @@ import Result from '../models/Result';
 import { addAssessmentJob } from '../queues/assessmentQueue';
 import redisClient from '../config/redis';
 import crypto from 'crypto';
+import { assessmentStore, generationFilter, resultId } from '../workers/assessmentPersistence';
 
 export class AssignmentService {
   /**
    * Core logic for creating a new assignment and queueing the LLM job
    */
   static async createAssignment(payload: any, fileData: any, userId: string) {
+    const generationId = crypto.randomUUID();
     const hashData = {
       title: payload.title,
       questionTypes: payload.questionTypes,
@@ -30,11 +32,14 @@ export class AssignmentService {
         userId,
         fileData,
         status: 'completed',
+        generationId,
       });
       await newAssignment.save();
 
       const newResult = new Result({
+        _id: resultId(newAssignment._id.toString(), generationId),
         assignmentId: newAssignment._id,
+        generationId,
         content: JSON.parse(cachedContent),
       });
       await newResult.save();
@@ -46,6 +51,7 @@ export class AssignmentService {
         message: 'Assignment created instantly from cache',
         assignmentId: newAssignment._id,
         jobId: newAssignment._id.toString(),
+        generationId,
         isCached: true
       };
     }
@@ -55,6 +61,7 @@ export class AssignmentService {
       userId,
       fileData,
       status: 'pending',
+      generationId,
     });
 
     await newAssignment.save();
@@ -66,7 +73,7 @@ export class AssignmentService {
     };
 
     // Add to Redis job queue (BullMQ)
-    const job = await addAssessmentJob(newAssignment._id.toString(), jobPayload);
+    const job = await addAssessmentJob(newAssignment._id.toString(), jobPayload, generationId);
 
     // Invalidate assignments list cache
     await redisClient.del(`assignments:user:${userId}`);
@@ -75,6 +82,7 @@ export class AssignmentService {
       message: 'Assignment created successfully',
       assignmentId: newAssignment._id,
       jobId: job.id,
+      generationId,
       isCached: false
     };
   }
@@ -100,20 +108,21 @@ export class AssignmentService {
    */
   static async getAssignmentResult(id: string) {
     const cacheKey = `assignment:result:${id}`;
-
-    const cachedData = await redisClient.get(cacheKey);
-    if (cachedData) {
-      return JSON.parse(cachedData);
-    }
-
-    const result = await Result.findOne({ assignmentId: id });
     const assignment = await Assignment.findById(id);
 
     if (!assignment) throw new Error('NOT_FOUND: Assignment not found');
     if (assignment.status === 'failed') throw new Error('FAILED: Generation failed for this assignment. Please try regenerating.');
+    // A saved result can precede finalization. Never expose partial/stale generations.
+    if (assignment.status !== 'completed') throw new Error('NOT_FOUND: Result not found for this assignment');
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      const cached = JSON.parse(cachedData);
+      if (cached.assignment?.generationId === assignment.generationId) return cached;
+    }
+    const result = await assessmentStore.loadResult(id, assignment.generationId);
     if (!result) throw new Error('NOT_FOUND: Result not found for this assignment');
 
-    const responseData = { ...result.toJSON(), assignment };
+    const responseData = { ...result, assignment };
 
     if (assignment.status === 'completed') {
       await redisClient.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);
@@ -129,7 +138,7 @@ export class AssignmentService {
     const assignment = await Assignment.findById(id);
     if (assignment) {
       await Assignment.findByIdAndDelete(id);
-      await Result.findOneAndDelete({ assignmentId: id });
+      await Result.deleteMany({ assignmentId: id });
       await redisClient.del(`assignments:user:${assignment.userId}`);
       await redisClient.del(`assignment:result:${id}`);
     }
@@ -142,10 +151,11 @@ export class AssignmentService {
     const assignment = await Assignment.findById(id);
     if (!assignment) throw new Error('NOT_FOUND: Assignment not found');
 
-    await Result.findOneAndDelete({ assignmentId: id });
-
-    assignment.status = 'pending';
-    await assignment.save();
+    const generationId = crypto.randomUUID();
+    // Every regeneration owns a new token. Late retries of an older generation
+    // cannot overwrite this assignment's state or emit a terminal notification.
+    await Assignment.findByIdAndUpdate(id, { $set: { status: 'pending', generationId, tokenUsage: 0 } });
+    await Result.deleteMany({ assignmentId: id, ...generationFilter(assignment.generationId) });
 
     await redisClient.del(`assignments:user:${assignment.userId}`);
     await redisClient.del(`assignment:result:${id}`);
@@ -161,12 +171,13 @@ export class AssignmentService {
       instructions: assignment.instructions,
     };
 
-    const job = await addAssessmentJob(assignment._id.toString(), payload as any);
+    const job = await addAssessmentJob(assignment._id.toString(), payload as any, generationId);
 
     return {
       message: 'Assignment regeneration started',
       assignmentId: assignment._id,
       jobId: job.id,
+      generationId,
     };
   }
 }

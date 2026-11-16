@@ -1,11 +1,12 @@
-import { Worker, Job } from 'bullmq';
+import { Worker } from 'bullmq';
 import redisClient from '../config/redis';
 import { SchemaType } from '@google/generative-ai';
-import { buildStructuredPrompt, parseAIResponse } from '../utils/promptBuilder';
-import Assignment from '../models/Assignment';
-import Result from '../models/Result';
 import { io } from '../server';
 import { generateAIContent } from '../utils/llmRouter';
+import { assessmentBackoff, maximumAttempts } from '../utils/assessmentRetry';
+import { assessmentStore } from './assessmentPersistence';
+import { assessmentQueue } from '../queues/assessmentQueue';
+import { createAssessmentProcessor, handleAssessmentFailure, reconcileFailedBatch, type ProcessorDependencies } from './assessmentProcessor';
 
 const assignmentSchema = {
   type: SchemaType.OBJECT,
@@ -41,99 +42,56 @@ const assignmentSchema = {
       required: ["sections"]
 };
 
-export const assessmentWorker = new Worker(
-  'assessment-generation',
-  async (job: Job) => {
-    const assignmentId = job.data.assignmentId;
-    console.log(`[Worker] Started processing job ${job.id} for assignment ${assignmentId}`);
+async function cacheOperation<T>(operation: Promise<T>): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([operation, new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('Cache operation timed out')), 2_000);
+    })]);
+  } finally { clearTimeout(timer); }
+}
 
-    try {
-
-      await Assignment.findByIdAndUpdate(assignmentId, { status: 'processing' });
-
-
-      const basePrompt = buildStructuredPrompt(job.data.payload);
-
-      let contents: any[] = [basePrompt];
-      
-      if (job.data.payload.fileData) {
-        if (job.data.payload.fileData.type === 'inline') {
-          const filePart = {
-            inlineData: {
-              data: job.data.payload.fileData.data,
-              mimeType: job.data.payload.fileData.mimeType,
-            }
-          };
-          contents = [filePart, basePrompt];
-        } else if (job.data.payload.fileData.type === 'text') {
-          const combinedPrompt = basePrompt + "\n\nSource Material:\n" + job.data.payload.fileData.data;
-          contents = [combinedPrompt];
-        }
-      }
-
-      console.log(`[Worker] Calling LLM Router...`);
-      const { text: responseText, tokenUsage } = await generateAIContent(contents, assignmentSchema);
-
-      console.log(`[Worker] Parsing LLM response...`);
-      const parsedContent = parseAIResponse(responseText);
-
-      const newResult = new Result({
-        assignmentId,
-        content: parsedContent,
-      });
-      await newResult.save();
-
-      // Save to LLM Cache to instantly resolve duplicate requests in the future
-      if (job.data.llmHash) {
-        await redisClient.set(`llm_cache:${job.data.llmHash}`, JSON.stringify(parsedContent), 'EX', 2592000); // 30 days
-      }
-
-      await Assignment.findByIdAndUpdate(assignmentId, { status: 'completed', tokenUsage });
-
-      // Invalidate caches since the status changed and a result was created
-      await redisClient.del('assignments:all');
-      await redisClient.del(`assignment:result:${assignmentId}`);
-
-      io.emit('assignment:updated', {
-        assignmentId,
-        status: 'completed',
-        data: parsedContent,
-      });
-
-      console.log(`[Worker] Finished processing job ${job.id} successfully`);
-      return { success: true, resultId: newResult._id };
-    } catch (error: unknown) {
-      console.error(`[Worker] Error processing job ${job.id}:`, error);
-
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-      if (assignmentId) {
-        await Assignment.findByIdAndUpdate(assignmentId, { status: 'failed' });
-        
-        // Invalidate cache so the UI reflects the failed status
-        await redisClient.del('assignments:all');
-        await redisClient.del(`assignment:result:${assignmentId}`);
-
-        io.emit('assignment:updated', {
-          assignmentId,
-          status: 'failed',
-          error: errorMessage,
-        });
-      }
-
-      throw error;
-    }
+const dependencies: ProcessorDependencies = {
+  store: assessmentStore,
+  generate: contents => generateAIContent(contents, assignmentSchema),
+  invalidate: (id, userId) => cacheOperation(redisClient.del('assignments:all', `assignments:user:${userId}`, `assignment:result:${id}`)),
+  cacheResult: (job, content) => {
+    const hash = job.data.payload.llmHash;
+    return hash ? cacheOperation(redisClient.set(`llm_cache:${hash}`, JSON.stringify(content), 'EX', 2592000)) : Promise.resolve();
   },
-  {
-    connection: redisClient,
-     concurrency: 2,
-  }
-);
+  emit: (event, payload) => { io.emit(event, payload); },
+  log: fields => { console.log(JSON.stringify({ component: 'assessment-worker', ...fields })); },
+};
 
-assessmentWorker.on('completed', (job) => {
-  console.log(`[Worker Shell] Job ${job.id} completed successfully`);
+export const assessmentWorker = new Worker('assessment-generation', createAssessmentProcessor(dependencies), {
+  connection: redisClient,
+  concurrency: 2,
+  settings: { backoffStrategy: assessmentBackoff },
 });
 
-assessmentWorker.on('failed', (job, err) => {
-  console.error(`[Worker Shell] Job ${job?.id} failed with error:`, err.message);
+assessmentWorker.on('failed', (job, error) => {
+  if (!job) return;
+  void handleAssessmentFailure(job, error, dependencies).catch(() => {
+    dependencies.log({ event: 'terminal_status_sync_failed', jobId: job.id, assignmentId: job.data.assignmentId,
+      attempt: job.attemptsMade, maxAttempts: maximumAttempts(job), category: 'persistence', outcome: 'reconciliation_required' });
+  });
 });
+
+// Avoid the default unhandled EventEmitter error, and never print raw Redis/SDK errors.
+assessmentWorker.on('error', () => {
+  dependencies.log({ event: 'worker_error', category: 'queue_infrastructure', outcome: 'worker_waiting_for_recovery' });
+});
+
+let reconciling = false;
+let failedOffset = 0;
+async function reconcile() {
+  if (reconciling) return;
+  reconciling = true;
+  try { failedOffset = await reconcileFailedBatch(assessmentQueue, dependencies, failedOffset); }
+  catch { dependencies.log({ event: 'terminal_reconciliation_unavailable', category: 'queue_infrastructure' }); }
+  finally { reconciling = false; }
+}
+assessmentWorker.on('ready', () => { void reconcile(); });
+const reconciliationTimer = setInterval(() => { void reconcile(); }, 60_000);
+reconciliationTimer.unref();
+assessmentWorker.on('closed', () => { clearInterval(reconciliationTimer); });

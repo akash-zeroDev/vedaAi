@@ -37,6 +37,7 @@ export interface FormData {
 
 export interface JobTracking {
   assignmentId: string | null;
+  generationId: string | null;
   status: 'idle' | 'queued' | 'processing' | 'success' | 'error';
   resultData: AssessmentResult | null;
   errorMessage?: string | null;
@@ -61,6 +62,7 @@ export const useAssessmentStore = create<AssessmentStore>((set) => ({
   totalMarks: 0,
   instructions: '',
   assignmentId: null,
+  generationId: null,
   status: 'idle',
   resultData: null,
   errorMessage: null,
@@ -87,6 +89,7 @@ export const useAssessmentStore = create<AssessmentStore>((set) => ({
     totalMarks: 0,
     instructions: '',
     assignmentId: null,
+    generationId: null,
     status: 'idle',
     resultData: null,
     errorMessage: null,

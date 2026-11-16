@@ -25,7 +25,7 @@ const OutputPage = () => {
 
   const handleRegenerate = async () => {
     try {
-      useAssessmentStore.setState({ status: 'processing' });
+      useAssessmentStore.setState({ status: 'processing', generationId: null });
       
       const { apiFetch } = require('@/lib/api');
       const response = await apiFetch(`/api/assignments/${jobId}/regenerate`, {
@@ -33,7 +33,8 @@ const OutputPage = () => {
       });
 
       if (response.status === 202 || response.ok) {
-        useAssessmentStore.setState({ assignmentId: jobId, status: 'processing', resultData: null, errorMessage: null });
+        const data = await response.json();
+        useAssessmentStore.setState({ assignmentId: jobId, generationId: data.generationId ?? null, status: 'processing', resultData: null, errorMessage: null });
       } else {
         const errorData = await response.json().catch(() => ({}));
         useAssessmentStore.setState({ status: 'error', errorMessage: errorData.error || errorData.message || 'Failed to regenerate assignment.' });
@@ -76,7 +77,7 @@ const OutputPage = () => {
           if (store.title) setAssignmentTitle(store.title);
         }
         
-        useAssessmentStore.setState({ assignmentId: jobId });
+        useAssessmentStore.setState({ assignmentId: jobId, generationId: data.assignment?.generationId ?? null });
         store.setResultData(data.content || data);
       } catch (err) {
         console.warn('Network error while fetching assignment:', err);
